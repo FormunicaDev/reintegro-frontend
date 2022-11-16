@@ -611,6 +611,16 @@
           No Existen Datos
         </v-btn>
       </template>
+      <template v-slot:[`item.CodEstado`]="{item}">
+        <v-chip
+          small
+          :color="getColor(item.CodEstado)"
+          dark
+          class="font-weight-medium"
+        >
+          {{ item.CodEstado }}
+        </v-chip>
+      </template>
     </v-data-table>
     <template>
       <div class="text-center">
@@ -1066,6 +1076,18 @@ export default {
       this.itemsLinea.cuentaContable = ''
       this.itemsLinea.establecimiento = ''
       this.itemsLinea.Linea = ''
+    },
+    getColor(estado) {
+      if (estado === 'INI') return '#3498db'
+      if (estado === 'FIN') return '#2ecc71'
+      if (estado === 'CON') return '#34495e'
+      if (estado === 'SAC') return '#f1c40f'
+      if (estado === 'FIR') return '#9c88ff'
+      if (estado === 'ATE') return '#16a085'
+      if (estado === 'EMC') return '#005b9f'
+      if (estado === 'ANU') return '#e74c3c'
+
+      return '#102027'
     },
   },
 }
