@@ -94,7 +94,7 @@
                   </v-card-text>
                   <v-card
                     class="mx-auto"
-                    max-width="1100"
+                    max-width="1500"
                   >
                     <v-card-title class="text-h6 font-weight-regular justify-space-between">
                       <span>{{ currentTitle }}</span>
@@ -108,7 +108,7 @@
 
                     <v-window
                       v-model="step"
-                      max-width="1000"
+                      max-width="1400"
                     >
                       <v-window-item :value="1">
                         <v-card-text>
@@ -703,7 +703,7 @@ export default {
       { text: 'Cuenta de Banco', value: 'CUENTA_BANCO' },
       { text: 'Cheque', value: 'NumCheque' },
       { text: 'Registro', value: 'FECHAREGISTRO' },
-      { text: 'Actions', value: 'actions', sortable: false },
+      { text: '', value: 'actions', sortable: false },
     ],
     headersDetails: [
       {
@@ -738,7 +738,7 @@ export default {
       { text: '# Empleados', value: 'intEmpleados' },
       { text: 'Monto', value: 'decMontoPro' },
       { text: 'Fecha Factura', value: 'datFechaFactura' },
-      { text: 'Actions', value: 'actionsEdit', sortable: false },
+      { text: '', value: 'actionsEdit', sortable: false },
     ],
     dataReintegro: [],
     dataDetalleReintegro: [],
@@ -754,7 +754,8 @@ export default {
       CodEstado: 'INI',
       TipoPago: 0,
       Beneficiario: '',
-      Usuario: '',
+      USUARIO: '',
+      USUARIO1: '',
       Concepto: '',
       CUENTA_BANCO: 0,
       NumCheque: 0,
@@ -959,7 +960,8 @@ export default {
       })
     },
     postReintegro() {
-      this.reintegroItem.Usuario = sessionStorage.getItem('userRei')
+      this.reintegroItem.USUARIO = sessionStorage.getItem('userRei')
+      this.reintegroItem.USUARIO1 = sessionStorage.getItem('userRei')
       if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.CENTRO_COSTO === null) {
         this.snackbar = true
         this.text = 'Favor Seleccionar un centro de costo'
@@ -977,7 +979,7 @@ export default {
 
         // console.log(this.reintegroItem)
 
-        /* this.dialogLoad = true
+        this.dialogLoad = true
         axios.post('/api/reintegro', this.reintegroItem).then(response => {
           this.snackbar = true
           this.text = response.data.mensaje
@@ -988,7 +990,7 @@ export default {
           this.snackbar = true
           this.text = error
           this.dialogLoad = false
-        }) */
+        })
       }
     },
     limpiarCampos() {
@@ -1018,7 +1020,8 @@ export default {
         this.text = 'Favor complete todos los campos obligatorios'
         // eslint-disable-next-line no-unneeded-ternary
         this.enabledBtn = this.reintegroItem.items.length === 0 ? false : true
-        this.step += 1
+
+        // this.step += 1
       } else {
         this.enabledBtn = this.reintegroItem.items === [] ? 0 : 1
         this.step += 1
