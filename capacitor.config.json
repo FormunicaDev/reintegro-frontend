@@ -1,0 +1,6 @@
+{
+  "appId": "com.formunica.formuspy",
+  "appName": "formuspy",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
