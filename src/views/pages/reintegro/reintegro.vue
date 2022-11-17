@@ -1,5 +1,8 @@
 <template>
-  <v-card>
+  <v-card
+    elevation="7"
+    class="rounded-xl"
+  >
     <v-card-title>
       <v-spacer></v-spacer>
       <v-text-field
@@ -23,6 +26,7 @@
           v-model="snackbar"
           color="success"
           outlined
+          rounded="pill"
         >
           {{ text }}
 
@@ -58,7 +62,7 @@
           <v-spacer></v-spacer>
           <v-dialog
             v-model="dialog"
-            max-width="1250px"
+            max-width="1600px"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-icon
@@ -83,7 +87,7 @@
                 Nuevo
               </v-btn>
             </template>
-            <v-card>
+            <v-card class="rounded-xl">
               <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
               </v-card-title>
@@ -93,8 +97,9 @@
                   <v-card-text class="d-flex">
                   </v-card-text>
                   <v-card
-                    class="mx-auto"
-                    max-width="1500"
+                    class="mx-auto rounded-xl"
+                    max-width="1600"
+                    elevation="7"
                   >
                     <v-card-title class="text-h6 font-weight-regular justify-space-between">
                       <span>{{ currentTitle }}</span>
@@ -108,7 +113,7 @@
 
                     <v-window
                       v-model="step"
-                      max-width="1400"
+                      max-width="1500"
                     >
                       <v-window-item :value="1">
                         <v-card-text>
@@ -257,6 +262,7 @@
                                     inset
                                     color="info"
                                     :label="`¿Es prorrateo?: ${switch1 === true ? 'Si':'No'}`"
+                                    @change="items = []"
                                   ></v-switch>
                                 </v-col>
                               </v-row>
@@ -402,7 +408,7 @@
                                 <v-col
                                   cols="12"
                                   sm="6"
-                                  md="3"
+                                  md="1"
                                 >
                                   <v-text-field
                                     v-model="itemsLinea.Linea"
@@ -413,21 +419,38 @@
                                   >
                                   </v-text-field>
                                 </v-col>
-                                <v-col>
-                                  <v-btn
-                                    v-if="!enabledEdit"
-                                    color="info"
-                                    :disabled="switch1"
-                                  >
-                                    Agregar
-                                  </v-btn>
-                                  <v-btn
-                                    v-if="enabledEdit"
-                                    color="info"
-                                    @click="editLinea()"
-                                  >
-                                    Actualizar
-                                  </v-btn>
+                                <v-col md="1">
+                                  <v-btn-toggle v-model="toggle_exclusive">
+                                    <v-btn
+                                      v-if="!switch1"
+                                      color="info"
+                                      :disabled="switch1"
+                                      @click="addLinea()"
+                                    >
+                                      Agregar
+                                    </v-btn>
+                                    <v-btn
+                                      v-if="switch1"
+                                      color="info"
+                                      @click="editarAllLinea()"
+                                    >
+                                      Actualizar todas las lineas
+                                    </v-btn>
+                                    <v-btn
+                                      v-if="enabledEdit"
+                                      color="info"
+                                      @click="editLinea()"
+                                    >
+                                      Actualizar
+                                    </v-btn>
+                                    <v-btn
+                                      v-if="enabledEdit"
+                                      color="error"
+                                      @click="enabledEdit = false"
+                                    >
+                                      Cancelar
+                                    </v-btn>
+                                  </v-btn-toggle>
                                 </v-col>
                               </v-row>
                               <v-row>
@@ -532,10 +555,13 @@
             <v-dialog
               v-model="dialog2"
               transition="dialog-top-transition"
-              max-width="1200"
+              max-width="1500"
             >
               <template v-slot:default="dialog2">
-                <v-card>
+                <v-card
+                  elevation="7"
+                  class="rounded-xl"
+                >
                   <v-toolbar
                     color="primary"
                     dark
@@ -547,6 +573,89 @@
                       <v-row>
                         <v-col
                           cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.centroCosto"
+                            v-mask="'##-##-##'"
+                            label="Centro de Costo"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.cuentaContable"
+                            v-mask="'#-##-##-###-###'"
+                            label="Cuenta Contable"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="1"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.Linea"
+                            label="Linea"
+                            outlined
+                            dense
+                            disabled
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="3"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.concepto"
+                            label="Concepto"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="3"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.establecimiento"
+                            label="Establecimiento"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.numFactura"
+                            label="# Factura"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col
+                          cols="12"
                         >
                           <v-data-table
                             :headers="headersDetails"
@@ -555,6 +664,18 @@
                             :loading="loadingData"
                             loading-text="Cargando... Por Favor espere"
                           >
+                            <template v-slot:[`item.actionsDetails`]="{ item }">
+                              <v-icon
+                                @click="selectDetails(item)"
+                              >
+                                {{ icons.mdiPencil }}
+                              </v-icon>
+                              <v-icon
+                                @click="selectDetails(item)"
+                              >
+                                {{ icons.mdiDelete }}
+                              </v-icon>
+                            </template>
                           </v-data-table>
                         </v-col>
                       </v-row>
@@ -720,7 +841,7 @@ export default {
       { text: 'Numero Factura', value: 'NumeroFactura' },
       { text: 'Establecimiento', value: 'NombreEstablecimiento_Persona' },
       { text: 'Monto', value: 'Monto' },
-      { text: 'Actions', value: 'actions', sortable: false },
+      { text: 'Actions', value: 'actionsDetails', sortable: false },
     ],
     headersConcepto: [
       {
@@ -775,6 +896,16 @@ export default {
       fechaFactura: '',
       Linea: '',
     },
+    itemsDetail: {
+      concepto: '',
+      cuentaContable: '',
+      numFactura: 0,
+      monto: 0,
+      establecimiento: '',
+      fechaFactura: '',
+      Linea: '',
+      centroCosto: 0,
+    },
     idSolicitud: '',
     conceptoID: 0,
     imagenMiniatura: '',
@@ -784,6 +915,7 @@ export default {
     step: 1,
     enabledBtn: false,
     enabledEdit: false,
+    linea: 0,
   }),
 
   computed: {
@@ -974,6 +1106,9 @@ export default {
       } else if (this.reintegroItem.Beneficiario === '' || this.reintegroItem.Beneficiario === null) {
         this.snackbar = true
         this.text = 'Favor ingresar un Beneficiario'
+      } else if (this.items.length === 0 || this.items === null) {
+        this.snackbar = true
+        this.text = 'Debe agregar al menos una linea en el detalle de su solicitud'
       } else {
         this.destructObject()
 
@@ -1028,14 +1163,19 @@ export default {
       }
     },
     addLinea() {
+      this.linea += 1
       this.itemsLinea.fechaFactura = this.date
       const data = {
-        CENTRO_COSTO: this.itemsLinea.centroCosto,
-        Cuenta_Contable: this.itemsLinea.cuentaContable,
-        FechaFactura: this.date,
+        strDescripcionConcepto: this.itemsLinea.concepto,
+        strCuentaContable: this.itemsLinea.cuentaContable,
+        datFechaFactura: this.date,
+        strEstablecimiento: this.itemsLinea.establecimiento,
+        intTotalEmpleados: this.itemsLinea.numFactura,
+        strCeCo: this.reintegroItem.CENTRO_COSTO,
+        decMontoPro: this.itemsLinea.monto,
+        IdLinea: this.linea,
       }
-
-      this.reintegroItem.items.push(data)
+      this.items.push(data)
       console.log(this.reintegroItem)
     },
 
@@ -1045,12 +1185,22 @@ export default {
         strDescripcionConcepto: Concepto,
         IdLinea: Linea,
         decMontoPro: Monto,
+        // eslint-disable-next-line camelcase
+        strCuentaContable: Cuenta_Contable,
+        datFechaFactura: FechaFactura,
+        intTotalEmpleados: NumeroFactura,
+        // eslint-disable-next-line camelcase
+        strEstablecimiento: NombreEstablecimiento_Persona,
         ...rest
       }) => ({
         CENTRO_COSTO,
         Concepto,
         Linea,
         Monto,
+        Cuenta_Contable,
+        FechaFactura,
+        NumeroFactura,
+        NombreEstablecimiento_Persona,
         ...rest,
       }))
       this.reintegroItem.items = data
@@ -1065,14 +1215,45 @@ export default {
       this.enabledEdit = true
       console.log(item)
     },
+    selectDetails(item) {
+      this.itemsDetail.concepto = item.Concepto
+      this.itemsDetail.cuentaContable = item.Cuenta_Contable
+      this.itemsDetail.numFactura = item.NumeroFactura
+      this.itemsDetail.monto = item.Monto
+      this.itemsDetail.establecimiento = item.NombreEstablecimiento_Persona
+      this.itemsDetail.fechaFactura = item.FechaFactura
+      this.itemsDetail.Linea = item.Linea
+      this.itemsDetail.centroCosto = item.CENTRO_COSTO
+      console.log(item)
+    },
     editLinea() {
       const update = this.items.findIndex((obj => obj.IdLinea === this.itemsLinea.Linea))
       this.items[update].strCuentaContable = this.itemsLinea.cuentaContable
       this.items[update].strEstablecimiento = this.itemsLinea.establecimiento
       this.items[update].datFechaFactura = this.date
+      this.items[update].intTotalEmpleados = this.itemsLinea.numFactura
 
       this.limpiarDetalles()
       this.enabledEdit = false
+
+      return true
+    },
+    editarAllLinea() {
+      try {
+        // eslint-disable-next-line no-plusplus
+        for (let index = 0; index < this.items.length; index++) {
+          this.items[index].strCuentaContable = this.itemsLinea.cuentaContable
+          this.items[index].strEstablecimiento = this.itemsLinea.establecimiento
+          this.items[index].datFechaFactura = this.date
+          this.items[index].intTotalEmpleados = this.itemsLinea.numFactura
+        }
+
+        return true
+      } catch (error) {
+        console.log(error)
+
+        return false
+      }
     },
     limpiarDetalles() {
       this.itemsLinea.monto = 0

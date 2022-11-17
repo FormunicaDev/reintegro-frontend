@@ -1,5 +1,5 @@
 <template>
-  <v-card class="greeting-card">
+  <v-card class="greeting-card rounded-xl">
     <v-row class="ma-0 pa-0">
       <v-col cols="8">
         <v-card-title class="text-no-wrap pt-1 ps-2">
