@@ -530,7 +530,7 @@
           >
             <v-card>
               <v-card-title class="text-h5">
-                ¿Seguro que desea anular/activar este elemento?
+                ¿Seguro que desea eliminar este elemento?
               </v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
@@ -671,7 +671,7 @@
                                 {{ icons.mdiPencil }}
                               </v-icon>
                               <v-icon
-                                @click="selectDetails(item)"
+                                @click="deleteItem(item)"
                               >
                                 {{ icons.mdiDelete }}
                               </v-icon>
@@ -946,7 +946,7 @@ export default {
     },
 
     deleteItemConfirm() {
-      this.deleteProductoOrder()
+      this.deleteLinea()
     },
 
     close() {
@@ -1272,6 +1272,15 @@ export default {
       if (estado === 'ANU') return '#e74c3c'
 
       return '#102027'
+    },
+    deleteLinea(item) {
+      axios.delete(`/api/prorrateo/${this.idSolicitud}?Linea=${item.Linea}&centroCosto=${item.CENTRO_COSTO}`).then(response => {
+        this.snackbar = true
+        this.text = `${response.data.mensaje} Linea: ${response.data.Linea} Solicitud: ${response.data.Solicitud}`
+      }).catch(error => {
+        this.snackbar = true
+        this.text = error
+      })
     },
   },
 }
