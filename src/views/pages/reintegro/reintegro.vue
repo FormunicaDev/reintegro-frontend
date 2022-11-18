@@ -528,7 +528,7 @@
             v-model="dialogDelete"
             max-width="600px"
           >
-            <v-card>
+            <v-card class="rounded-xl">
               <v-card-title class="text-h5">
                 ¿Seguro que desea eliminar este elemento?
               </v-card-title>
@@ -546,6 +546,12 @@
                   @click="deleteItemConfirm()"
                 >
                   OK
+                  <v-spacer></v-spacer>
+                  <v-progress-circular
+                    v-if="loadDelete"
+                    indeterminate
+                    color="white"
+                  ></v-progress-circular>
                 </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -652,6 +658,20 @@
                           >
                           </v-text-field>
                         </v-col>
+                        <v-col
+                          cols="12"
+                          md="6"
+                          sm="2"
+                        >
+                          <v-btn
+                            v-if="statusCodeSol === 'Pendiente'? true:false"
+                            color="info"
+                            outlined
+                            @click="editLineasDetalles()"
+                          >
+                            Actualizar
+                          </v-btn>
+                        </v-col>
                       </v-row>
                       <v-row>
                         <v-col
@@ -660,17 +680,19 @@
                           <v-data-table
                             :headers="headersDetails"
                             :items="dataDetalleReintegro"
-                            class="elevation-1"
+                            class="elevation-7 rounded-xl"
                             :loading="loadingData"
                             loading-text="Cargando... Por Favor espere"
                           >
                             <template v-slot:[`item.actionsDetails`]="{ item }">
                               <v-icon
+                                :disabled="statusCodeSol === 'Pendiente'? false:true"
                                 @click="selectDetails(item)"
                               >
                                 {{ icons.mdiPencil }}
                               </v-icon>
                               <v-icon
+                                :disabled="statusCodeSol === 'Pendiente'? false:true"
                                 @click="deleteItem(item)"
                               >
                                 {{ icons.mdiDelete }}
@@ -687,6 +709,13 @@
                       @click="dialog2.value = false"
                     >
                       Cerrar
+                    </v-btn>
+                    <v-btn
+                      :disabled="statusCodeSol === 'Pendiente'? false:true"
+                      color="primary"
+                      @click="putDetalleSolicitud()"
+                    >
+                      Guardar Cambios
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -732,14 +761,14 @@
           No Existen Datos
         </v-btn>
       </template>
-      <template v-slot:[`item.CodEstado`]="{item}">
+      <template v-slot:[`item.nameStatus`]="{item}">
         <v-chip
           small
-          :color="getColor(item.CodEstado)"
+          :color="getColor(item.nameStatus)"
           dark
           class="font-weight-medium"
         >
-          {{ item.CodEstado }}
+          {{ item.nameStatus }}
         </v-chip>
       </template>
     </v-data-table>
@@ -800,6 +829,7 @@ export default {
     loadingData: false,
     loadingProrrateo: false,
     switch1: false,
+    loadDelete: false,
     row: null,
     text: '',
     color: '',
@@ -817,7 +847,7 @@ export default {
       { text: 'Centro de Costo', value: 'CENTRO_COSTO' },
       { text: 'Fecha de Solicitud', value: 'FechaSolicitud' },
       { text: 'Monto', value: 'Monto' },
-      { text: 'Estado', value: 'CodEstado' },
+      { text: 'Estado', value: 'nameStatus' },
       { text: 'Tipo de Pago', value: 'Descripcion' },
       { text: 'Beneficiario', value: 'Beneficiario' },
       { text: 'Concepto', value: 'Concepto' },
@@ -906,6 +936,9 @@ export default {
       Linea: '',
       centroCosto: 0,
     },
+    data: {
+      items: [],
+    },
     idSolicitud: '',
     conceptoID: 0,
     imagenMiniatura: '',
@@ -915,7 +948,9 @@ export default {
     step: 1,
     enabledBtn: false,
     enabledEdit: false,
+    statusCodeSol: '',
     linea: 0,
+    ceco: 0,
   }),
 
   computed: {
@@ -942,6 +977,8 @@ export default {
   methods: {
     deleteItem(item) {
       this.idSolicitud = item.IdSolicitud
+      this.linea = item.Linea
+      this.ceco = item.CENTRO_COSTO
       this.dialogDelete = true
     },
 
@@ -979,11 +1016,12 @@ export default {
     getReintegro() {
       this.overlay = true
 
-      /* const user = sessionStorage.getItem('userRei')
-      const role = sessionStorage.getItem('roleRei') */
+      const user = sessionStorage.getItem('userRei')
+
+      // const role = sessionStorage.getItem('roleRei')
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegro?perPage?${this.perPage}`).then(response => {
+      axios.get(`/api/reintegro?perPage?${this.perPage}&user=${user}`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -1012,7 +1050,8 @@ export default {
     getReintegroPagination() {
       this.overlay = true
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegro?perPage=${this.perPage}&page=${this.page}`).then(response => {
+      const user = sessionStorage.getItem('userRei')
+      axios.get(`/api/reintegro?perPage=${this.perPage}&page=${this.page}&user=${user}`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -1039,6 +1078,8 @@ export default {
       this.dialog2 = true
       this.loadingData = true
       this.dataDetalleReintegro = []
+      this.statusCodeSol = item.nameStatus
+      this.idSolicitud = item.IdSolicitud
       axios.get(`/api/reintegrodetalle/${item.IdSolicitud}`).then(response => {
         if (response.data === null) {
           this.snackbar = true
@@ -1226,6 +1267,25 @@ export default {
       this.itemsDetail.centroCosto = item.CENTRO_COSTO
       console.log(item)
     },
+    editLineasDetalles() {
+      if (this.itemsDetail.Linea !== '') {
+        const index = this.dataDetalleReintegro.findIndex((obj => obj.Linea === this.itemsDetail.Linea))
+        this.dataDetalleReintegro[index].CENTRO_COSTO = this.itemsDetail.centroCosto
+        this.dataDetalleReintegro[index].Cuenta_Contable = this.itemsDetail.cuentaContable
+        this.dataDetalleReintegro[index].Concepto = this.itemsDetail.concepto
+        this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
+        this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
+      } else {
+        // eslint-disable-next-line no-plusplus
+        for (let index = 0; index < this.dataDetalleReintegro.length; index++) {
+          this.dataDetalleReintegro[index].CENTRO_COSTO = this.itemsDetail.centroCosto
+          this.dataDetalleReintegro[index].Cuenta_Contable = this.itemsDetail.cuentaContable
+          this.dataDetalleReintegro[index].Concepto = this.itemsDetail.concepto
+          this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
+          this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
+        }
+      }
+    },
     editLinea() {
       const update = this.items.findIndex((obj => obj.IdLinea === this.itemsLinea.Linea))
       this.items[update].strCuentaContable = this.itemsLinea.cuentaContable
@@ -1262,24 +1322,38 @@ export default {
       this.itemsLinea.Linea = ''
     },
     getColor(estado) {
-      if (estado === 'INI') return '#3498db'
-      if (estado === 'FIN') return '#2ecc71'
-      if (estado === 'CON') return '#34495e'
-      if (estado === 'SAC') return '#f1c40f'
-      if (estado === 'FIR') return '#9c88ff'
-      if (estado === 'ATE') return '#16a085'
-      if (estado === 'EMC') return '#005b9f'
-      if (estado === 'ANU') return '#e74c3c'
+      if (estado === 'Pendiente') return '#0288d1'
+      if (estado === 'Aprobado') return '#00838f'
+      if (estado === 'Atendido') return '#9e9d24'
+      if (estado === 'En Firma') return '#c56000'
+      if (estado === 'Finalizado') return '#2e7d32'
+      if (estado === 'Rechazado') return '#7f0000'
 
       return '#102027'
     },
-    deleteLinea(item) {
-      axios.delete(`/api/prorrateo/${this.idSolicitud}?Linea=${item.Linea}&centroCosto=${item.CENTRO_COSTO}`).then(response => {
+    deleteLinea() {
+      axios.delete(`/api/reintegro/${this.idSolicitud}?Linea=${this.linea}&centroCosto=${this.ceco}`).then(response => {
         this.snackbar = true
         this.text = `${response.data.mensaje} Linea: ${response.data.Linea} Solicitud: ${response.data.Solicitud}`
+        const item = { IdSolicitud: this.idSolicitud }
+        this.getSolicitudDetalle(item)
+        this.closeDelete()
       }).catch(error => {
         this.snackbar = true
         this.text = error
+      })
+    },
+    putDetalleSolicitud() {
+      this.dialogLoad = true
+      this.data.items = this.dataDetalleReintegro
+      axios.put(`/api/reintegro/${this.idSolicitud}`, this.data).then(response => {
+        this.snackbar = true
+        this.text = response.data.mensaje
+        this.dialogLoad = false
+      }).catch(error => {
+        this.snackbar = true
+        this.text = error.data.mensaje
+        this.dialogLoad = false
       })
     },
   },
