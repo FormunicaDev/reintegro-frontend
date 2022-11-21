@@ -137,7 +137,7 @@ export default {
   methods: {
     async obtenerInfoUser() {
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknHonduras')}`
-      const usuario = sessionStorage.getItem('userSpy')
+      const usuario = sessionStorage.getItem('userRei')
       axios.get(`/api/person/${usuario}`).then(response => {
         console.log(response)
         this.username = response.data[0].USUARIO

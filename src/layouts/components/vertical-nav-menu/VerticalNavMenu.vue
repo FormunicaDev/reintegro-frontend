@@ -50,6 +50,11 @@
         :to="{ name: 'reintegro' }"
         :icon="icons.mdiCashRefund"
       ></nav-menu-link>
+      <nav-menu-link
+        title="Solicitudes"
+        :to="{ name: 'solicitudes' }"
+        :icon="icons.mdiCashCheck"
+      ></nav-menu-link>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -66,6 +71,7 @@ import {
   mdiFormSelect,
   mdiAccountCogOutline,
   mdiCashRefund,
+  mdiCashCheck,
 } from '@mdi/js'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuLink from './components/NavMenuLink.vue'
@@ -93,6 +99,7 @@ export default {
         mdiFormSelect,
         mdiAccountCogOutline,
         mdiCashRefund,
+        mdiCashCheck,
       },
     }
   },

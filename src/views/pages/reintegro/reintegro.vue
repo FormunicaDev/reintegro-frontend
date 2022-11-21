@@ -546,7 +546,7 @@
                   @click="deleteItemConfirm()"
                 >
                   OK
-                  <v-spacer></v-spacer>
+                  <v-spacer v-if="loadDelete"></v-spacer>
                   <v-progress-circular
                     v-if="loadDelete"
                     indeterminate
@@ -1332,15 +1332,18 @@ export default {
       return '#102027'
     },
     deleteLinea() {
+      this.loadDelete = true
       axios.delete(`/api/reintegro/${this.idSolicitud}?Linea=${this.linea}&centroCosto=${this.ceco}`).then(response => {
         this.snackbar = true
         this.text = `${response.data.mensaje} Linea: ${response.data.Linea} Solicitud: ${response.data.Solicitud}`
-        const item = { IdSolicitud: this.idSolicitud }
+        const item = { IdSolicitud: this.idSolicitud, nameStatus: 1 }
         this.getSolicitudDetalle(item)
         this.closeDelete()
+        this.loadDelete = false
       }).catch(error => {
         this.snackbar = true
         this.text = error
+        this.loadDelete = false
       })
     },
     putDetalleSolicitud() {

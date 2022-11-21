@@ -19,6 +19,11 @@ const routes = [
     component: () => import('@/views/pages/reintegro/reintegro.vue'),
   },
   {
+    path: '/pages/solicitudes',
+    name: 'solicitudes',
+    component: () => import('@/views/pages/reintegro/solicitudes.vue'),
+  },
+  {
     path: '/pages/account-settings',
     name: 'pages-account-settings',
     component: () => import('@/views/pages/account-settings/AccountSettings.vue'),

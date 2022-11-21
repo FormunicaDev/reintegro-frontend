@@ -221,7 +221,7 @@ export default {
     updatePassword() {
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknHonduras')}`
       this.loading = true
-      const usuario = sessionStorage.getItem('userSpy')
+      const usuario = sessionStorage.getItem('userRei')
       axios.put(`/api/user/${usuario}`, this.pass).then(response => {
         this.snackbar = true
         this.text = response.data.mensaje
