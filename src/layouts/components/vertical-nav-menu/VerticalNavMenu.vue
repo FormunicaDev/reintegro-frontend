@@ -114,6 +114,9 @@ export default {
   mounted() {
     this.getPermisos()
   },
+  created() {
+    this.getPermisos()
+  },
   methods: {
     validarPermisos() {
       const acciones = actions.enumActions()

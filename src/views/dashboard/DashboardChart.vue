@@ -67,6 +67,11 @@ export default {
         type: 'pie',
       },
       labels: [],
+      theme: {
+        monochrome: {
+          enabled: false,
+        },
+      },
       responsive: [{
         breakpoint: 480,
         options: {

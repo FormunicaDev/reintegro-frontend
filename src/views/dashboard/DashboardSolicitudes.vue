@@ -20,6 +20,7 @@
           <v-skeleton-loader
             class="mx-auto"
             max-width="500"
+            max-height="300"
             type="list-item-avatar, divider, list-item-three-line, card-heading, image, actions"
           ></v-skeleton-loader>
         </v-col>

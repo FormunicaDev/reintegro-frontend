@@ -1,7 +1,7 @@
 <template>
   <div class="auth-wrapper auth-v1">
     <div class="auth-inner">
-      <v-card class="auth-card">
+      <v-card class="auth-card rounded-xl">
         <!-- logo -->
         <v-card-title class="d-flex align-center justify-center py-7">
           <router-link
@@ -60,13 +60,34 @@
             <v-btn
               block
               color="primary"
+              :disabled="enabledBtn"
               class="mt-6"
               @click="login()"
             >
-              Login
+              Iniciar Sesión
             </v-btn>
           </v-form>
         </v-card-text>
+        <v-dialog
+          v-model="dialog"
+          hide-overlay
+          persistent
+          width="300"
+        >
+          <v-card
+            color="primary"
+            dark
+          >
+            <v-card-text>
+              Iniciando Sesión...
+              <v-progress-linear
+                indeterminate
+                color="white"
+                class="mb-0"
+              ></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
         <!-- create new account  -->
         <v-card-text class="d-flex align-center justify-center flex-wrap mt-2">
@@ -158,6 +179,8 @@ export default {
     },
     snackbar: false,
     text: '',
+    enabledBtn: false,
+    dialog: false,
   }),
   created() {
   },
@@ -170,20 +193,28 @@ export default {
         this.snackbar = true
         this.text = 'Favor ingrese su contraseña'
       } else {
+        this.enabledBtn = true
+        this.dialog = true
         axios.post('/api/login', this.userData).then(response => {
           if (response.data.StatusCode === 404) {
             this.snackbar = true
             this.text = response.data.mensaje
+            this.enabledBtn = false
+            this.dialog = false
           } else {
             sessionStorage.setItem('tknReiFormunica', response.data.token)
             sessionStorage.setItem('userRei', response.data.user)
             sessionStorage.setItem('roleRei', response.data.rol)
             axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.tknReiFormunica}`
             this.$router.push({ name: 'dashboard' })
+            this.enabledBtn = false
+            this.dialog = false
           }
         }).catch(error => {
           this.snackbar = true
           this.text = error.response.data.mensaje
+          this.enabledBtn = false
+          this.dialog = false
         })
       }
     },

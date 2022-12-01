@@ -70,7 +70,10 @@
       <!-- Logout -->
       <v-list-item link>
         <v-list-item-icon class="me-2">
-          <v-icon size="22">
+          <v-icon
+            size="22"
+            @click="cerrarSesion()"
+          >
             {{ icons.mdiLogoutVariant }}
           </v-icon>
         </v-list-item-icon>
