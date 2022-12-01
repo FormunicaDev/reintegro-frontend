@@ -15,6 +15,7 @@
         </v-col>
         <v-col cols="6">
           <vue-apex-charts
+            v-if="!loading"
             type="pie"
             :options="chartOptions"
             :series="series"
@@ -23,6 +24,7 @@
         </v-col>
         <v-col cols="6">
           <vue-apex-charts
+            v-if="!loading"
             type="bar"
             :options="chartOptionsBar"
             :series="seriesBar"
@@ -57,6 +59,7 @@ export default {
   data: () => ({
     loading: false,
     series: [],
+    url: '',
     seriesBar: [{ data: [] }],
     chartOptions: {
       chart: {
@@ -102,7 +105,15 @@ export default {
   methods: {
     getData() {
       this.loading = true
-      axios.get('/api/estadistica').then(response => {
+      const role = sessionStorage.getItem('roleRei')
+      const user = sessionStorage.getItem('userRei')
+
+      if (role === '1500') {
+        this.url = '/api/estadistica'
+      } else {
+        this.url = `/api/estadistica?user=${user}`
+      }
+      axios.get(this.url).then(response => {
         // this.series = response.data.map(element => parseInt(element.total, 10))
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < response.data.length; index++) {
