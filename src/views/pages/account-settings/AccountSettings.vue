@@ -37,9 +37,11 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { mdiAccountOutline, mdiLockOpenOutline, mdiInformationOutline } from '@mdi/js'
 import { ref } from '@vue/composition-api'
 import validateLogin from '@/services/validateLogin'
+import actions from '@/services/action'
 
 // demos
 import AccountSettingsAccount from './AccountSettingsAccount.vue'
@@ -91,13 +93,30 @@ export default {
     }
   },
   created() {
-    this.comprobarLogin()
+    this.getPermisos()
   },
   methods: {
     comprobarLogin() {
+      const acciones = actions.enumActions()
+      // eslint-disable-next-line eqeqeq
+      const access = this.permisos.find(element => element.IDACCION == acciones.VER_SOLICITUDES_DE_TODOS_LOS_USUARIOS)
+
+      if (access === 0 || access === null || access === undefined) {
+        this.$router.push('/dashboard')
+      }
       if (!validateLogin.validateToken()) {
         this.$router.push('/')
       }
+    },
+    async getPermisos() {
+      const user = sessionStorage.getItem('userRei')
+      const role = sessionStorage.getItem('roleRei')
+      await axios.get(`/api/permisos/${user}?role=${role}`).then(response => {
+        this.permisos = response.data.data
+        this.comprobarLogin()
+      }).catch(error => {
+        console.log(error)
+      })
     },
   },
 }

@@ -186,6 +186,7 @@ import {
 import axios from 'axios'
 import validateLogin from '@/services/validateLogin'
 import validateToken from '@/services/validateToken'
+import actions from '@/services/action'
 
 export default {
 
@@ -279,12 +280,14 @@ export default {
     dataStatus: [],
     editedIndex: -1,
     items: [],
+    actions: [],
     idSolicitud: '',
     conceptoID: 0,
     perPage: 10,
     statusCodeSol: '',
     linea: 0,
     ceco: 0,
+    permisos: [],
   }),
 
   computed: {
@@ -304,8 +307,8 @@ export default {
   },
 
   created() {
+    this.getPermisos()
     this.getReintegro()
-    this.comprobarLogin()
     this.getStatus()
   },
 
@@ -366,9 +369,9 @@ export default {
           this.page = response.data.current_page
         }
       }).catch(error => {
-        console.log(error)
+        console.log(error.message)
         this.snackbar = true
-        this.text = error.response.data !== 'unauthorized' ? error.response.data.error : error.response.data
+        this.text = `${error.message} - Revise su conexion`
         this.overlay = false
         if (error.response.data.mensaje === 'invalid') {
           validateToken.logout()
@@ -403,7 +406,7 @@ export default {
         }
       }).catch(error => {
         this.snackbar = true
-        this.text = error.response.data.error
+        this.text = `${error.message} - Revise su conexion`
         this.overlay = false
         if (error.response.data.mensaje === 'invalid') {
           validateToken.logout()
@@ -429,7 +432,7 @@ export default {
         }
       }).catch(error => {
         this.snackbar = true
-        this.text = error.response.data.error
+        this.text = `${error.message} - Revise su conexion`
         this.overlay = false
         if (error.response.data.mensaje === 'invalid') {
           validateToken.logout()
@@ -461,9 +464,27 @@ export default {
       })
     },
     comprobarLogin() {
+      const acciones = actions.enumActions()
+      // eslint-disable-next-line eqeqeq
+      const access = this.permisos.find(element => element.IDACCION == acciones.VER_SOLICITUDES_DE_TODOS_LOS_USUARIOS)
+
+      if (access === 0 || access === null || access === undefined) {
+        this.$router.push('/dashboard')
+      }
+
       if (!validateLogin.validateToken()) {
         this.$router.push('/')
       }
+    },
+    async getPermisos() {
+      const user = sessionStorage.getItem('userRei')
+      const role = sessionStorage.getItem('roleRei')
+      await axios.get(`/api/permisos/${user}?role=${role}`).then(response => {
+        this.permisos = response.data.data
+        this.comprobarLogin()
+      }).catch(error => {
+        console.log(error)
+      })
     },
     getStatus() {
       axios.get('/api/status').then(response => {

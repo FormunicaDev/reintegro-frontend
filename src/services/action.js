@@ -1,0 +1,18 @@
+export default {
+  enumActions() {
+    const acciones = {
+      ACCESO_AL_SISTEMA: 1501,
+      CAPTAR_SOLICITUD: 1502,
+      VISUALIZAR_SOLICITUDES_INICIALIZADAS: 1503,
+      ATENDER_SOLICITUD: 1504,
+      VISUALIZAR_SOLITUDES_ATENDIDAS: 1505,
+      FINALIZAR_SOLICITUD: 1506,
+      ANULAR_SOLICITUD: 1507,
+      VISUALIZAR_SOLICITUDES: 1508,
+      VER_SOLICITUDES_DE_TODOS_LOS_USUARIOS: 1517,
+      test: 0,
+    }
+
+    return acciones
+  },
+}

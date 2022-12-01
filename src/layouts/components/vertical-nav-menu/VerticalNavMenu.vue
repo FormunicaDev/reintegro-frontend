@@ -51,6 +51,7 @@
         :icon="icons.mdiCashRefund"
       ></nav-menu-link>
       <nav-menu-link
+        v-if="access.solicitudes"
         title="Solicitudes"
         :to="{ name: 'solicitudes' }"
         :icon="icons.mdiCashCheck"
@@ -73,8 +74,10 @@ import {
   mdiCashRefund,
   mdiCashCheck,
 } from '@mdi/js'
+import axios from 'axios'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuLink from './components/NavMenuLink.vue'
+import actions from '@/services/action'
 
 export default {
   components: {
@@ -101,7 +104,36 @@ export default {
         mdiCashRefund,
         mdiCashCheck,
       },
+      access: {
+        solicitudes: false,
+        reintegro: false,
+      },
+      permisos: [],
     }
+  },
+  mounted() {
+    this.getPermisos()
+  },
+  methods: {
+    validarPermisos() {
+      const acciones = actions.enumActions()
+      // eslint-disable-next-line eqeqeq
+      const res = this.permisos.find(element => element.IDACCION == acciones.VER_SOLICITUDES_DE_TODOS_LOS_USUARIOS)
+      const usuario = res.USUARIO
+      if (usuario !== '') {
+        this.access.solicitudes = true
+      }
+    },
+    async getPermisos() {
+      const user = sessionStorage.getItem('userRei')
+      const role = sessionStorage.getItem('roleRei')
+      await axios.get(`/api/permisos/${user}?role=${role}`).then(response => {
+        this.permisos = response.data.data
+        this.validarPermisos()
+      }).catch(error => {
+        console.log(error)
+      })
+    },
   },
 }
 </script>
