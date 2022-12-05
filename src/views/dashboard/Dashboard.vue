@@ -45,6 +45,9 @@ export default {
   created() {
     this.getPermisos()
   },
+  mounted() {
+    this.setTheme()
+  },
   methods: {
     comprobarLogin() {
       const acciones = actions.enumActions()
@@ -68,6 +71,19 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+    },
+    setTheme() {
+      setTimeout(() => {
+        const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+
+        // const userPrefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+
+        if (userPrefersDark) {
+          this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+        } else {
+          this.$vuetify.theme.dark = !this.$vuetify.theme.dark
+        }
+      }, 2000)
     },
   },
 }

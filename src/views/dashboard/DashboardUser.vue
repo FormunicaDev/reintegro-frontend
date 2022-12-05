@@ -35,10 +35,10 @@
         ></v-img>
         <v-img
           contain
-          height="108"
-          max-width="83"
+          height="150"
+          max-width="103"
           class="greeting-card-trophy"
-          src="@/assets/images/misc/trophy.png"
+          src="@/assets/images/misc/tree-green.png"
         ></v-img>
       </v-col>
     </v-row>

@@ -752,6 +752,12 @@
         >
           {{ icons.mdiClipboardList }}
         </v-icon>
+        <v-icon
+          medium
+          @click="printReintegro(item)"
+        >
+          {{ icons.mdiPrinter }}
+        </v-icon>
       </template>
       <template v-slot:no-data>
         <v-btn
@@ -798,6 +804,7 @@ import {
   mdiClipboardListOutline,
   mdiPageLayoutHeader,
   mdiVuetify,
+  mdiPrinter,
 } from '@mdi/js'
 import axios from 'axios'
 import validateLogin from '@/services/validateLogin'
@@ -820,6 +827,7 @@ export default {
       mdiClipboardListOutline,
       mdiPageLayoutHeader,
       mdiVuetify,
+      mdiPrinter,
     },
     dialog: false,
     dialog2: false,
@@ -1022,7 +1030,7 @@ export default {
       // const role = sessionStorage.getItem('roleRei')
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegro?perPage?${this.perPage}&user=${user}`).then(response => {
+      axios.get(`/api/reintegro?perPage=${this.perPage}&user=${user}`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -1376,6 +1384,10 @@ export default {
         this.text = error.data.mensaje
         this.dialogLoad = false
       })
+    },
+    printReintegro(item) {
+      const { IdSolicitud } = item
+      window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}`, '_blank')
     },
   },
 }
