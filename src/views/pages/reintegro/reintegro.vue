@@ -911,7 +911,7 @@ export default {
       FechaSolicitud: '',
       Monto: 0,
       EsDolar: 0,
-      CodEstado: 'INI',
+      CodEstado: '1',
       TipoPago: 0,
       Beneficiario: '',
       USUARIO: '',

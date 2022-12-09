@@ -124,6 +124,7 @@ export default {
     cerrarSesion() {
       sessionStorage.removeItem('tknReiFormunica')
       sessionStorage.removeItem('userRei')
+      localStorage.removeItem('themeReintegro')
       this.$router.push({ name: 'pages-login' })
     },
     perfil() {
