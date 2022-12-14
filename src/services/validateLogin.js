@@ -9,10 +9,11 @@ export default {
       const decode = jwt_decode(token)
       const date = new Date(decode.exp)
       const usuario = sessionStorage.getItem('userRei')
-
       if (date > Date.now()) {
         sessionStorage.removeItem('tknReiFormunica')
         sessionStorage.removeItem('userRei')
+        sessionStorage.removeItem('roleRei')
+        localStorage.removeItem('themeReintegro')
         this.$router.push('/')
 
         return false
@@ -23,6 +24,7 @@ export default {
         if (response.data.mensaje === 'Invalido') {
           sessionStorage.removeItem('tknReiFormunica')
           sessionStorage.removeItem('userRei')
+          localStorage.removeItem('themeReintegro')
           this.$router.push('/')
 
           return false
@@ -35,5 +37,12 @@ export default {
     }
 
     return false
+  },
+  expirationToken() {
+    const token = sessionStorage.getItem('tknFormunica')
+    const decode = jwt_decode(token)
+    const date = new Date(decode.exp)
+
+    console.log(date)
   },
 }

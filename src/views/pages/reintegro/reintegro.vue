@@ -262,7 +262,7 @@
                                     inset
                                     color="info"
                                     :label="`¿Es prorrateo?: ${switch1 === true ? 'Si':'No'}`"
-                                    @change="items = []"
+
                                   ></v-switch>
                                 </v-col>
                               </v-row>
@@ -912,7 +912,7 @@ export default {
       Monto: 0,
       EsDolar: 0,
       CodEstado: '1',
-      TipoPago: 0,
+      TipoPago: 2,
       Beneficiario: '',
       USUARIO: '',
       USUARIO1: '',

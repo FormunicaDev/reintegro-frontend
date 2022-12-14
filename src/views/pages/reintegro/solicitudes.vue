@@ -52,11 +52,39 @@
             vertical
           ></v-divider>
           <h4>Total de Registros: {{ totalRegistros }}</h4>
+          <v-divider
+            class="mx-4"
+            inset
+            vertical
+          ></v-divider>
           <v-spacer></v-spacer>
+          <v-col
+            cols="12"
+            sm="6"
+            md="4"
+          >
+            <v-container fluid>
+              <v-radio-group
+                v-model="typeSearch"
+                row
+                label="Filtrar por:"
+                default="0"
+              >
+                <v-radio
+                  label="Estado"
+                  :value="false"
+                ></v-radio>
+                <v-radio
+                  label="ID Solicitud"
+                  :value="true"
+                ></v-radio>
+              </v-radio-group>
+            </v-container>
+          </v-col>
           <v-autocomplete
+            v-if="!typeSearch"
             v-model="statusCodeSol"
             :items="dataStatus"
-            outlined
             dense
             label="Estado"
             persistent-hint
@@ -67,6 +95,16 @@
             @input="filtrar()"
           >
           </v-autocomplete>
+          <v-text-field
+            v-if="typeSearch"
+            v-model="idSolicitud"
+            dense
+            label="Numero de Solicitud"
+            :prepend-icon="icons.mdiMagnify"
+            clearable
+            @keyup.enter="getReintegroById()"
+          >
+          </v-text-field>
           <v-divider
             class="mx-4"
             inset
@@ -97,6 +135,103 @@
                   </v-toolbar>
                   <v-card-text>
                     <v-container>
+                      <v-row v-if="statusCodeSol === 'Pendiente'? true:false">
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.centroCosto"
+                            v-mask="'##-##-##'"
+                            label="Centro de Costo"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.cuentaContable"
+                            v-mask="'#-##-##-###-###'"
+                            label="Cuenta Contable"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="1"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.Linea"
+                            label="Linea"
+                            outlined
+                            dense
+                            disabled
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="3"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.concepto"
+                            label="Concepto"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="3"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.establecimiento"
+                            label="Establecimiento"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.numFactura"
+                            label="# Factura"
+                            outlined
+                            dense
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
+                          md="6"
+                          sm="2"
+                        >
+                          <v-btn
+                            v-if="statusCodeSol === 'Pendiente'? true:false"
+                            color="info"
+                            outlined
+                            @click="editLineasDetalles()"
+                          >
+                            Actualizar Linea
+                          </v-btn>
+                        </v-col>
+                      </v-row>
                       <v-row>
                         <v-col
                           cols="12"
@@ -108,6 +243,22 @@
                             :loading="loadingData"
                             loading-text="Cargando... Por Favor espere"
                           >
+                            <template v-slot:[`item.actionsDetails`]="{ item }">
+                              <v-icon
+                                v-if="statusCodeSol === 'Pendiente'? true:false"
+                                :disabled="statusCodeSol === 'Pendiente'? false:true"
+                                @click="selectDetails(item)"
+                              >
+                                {{ icons.mdiPencil }}
+                              </v-icon>
+                              <v-icon
+                                v-if="statusCodeSol === 'Pendiente'? true:false"
+                                :disabled="statusCodeSol === 'Pendiente'? false:true"
+                                @click="deleteItem(item)"
+                              >
+                                {{ icons.mdiDelete }}
+                              </v-icon>
+                            </template>
                           </v-data-table>
                         </v-col>
                       </v-row>
@@ -124,17 +275,115 @@
                 </v-card>
               </template>
             </v-dialog>
+            <v-dialog
+              v-model="dialogStatus"
+              max-width="700px"
+            >
+              <v-card
+                elevation="7"
+                class="rounded-xl"
+              >
+                <v-card-title>Cambiar solicitud numero {{ idSolicitud }} al estado {{ itemStatus.Descripcion }}</v-card-title>
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+                <v-card-actions class="justify-end">
+                  <v-btn
+                    text
+                    @click="dialogStatus = false"
+                  >
+                    Cerrar
+                  </v-btn>
+                  <v-btn
+                    color="primary"
+                    @click="putStatusSolicitud()"
+                  >
+                    Ok
+                    <v-progress-circular
+                      v-if="loadChangeStatus"
+                      indeterminate
+                      color="white"
+                    ></v-progress-circular>
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog
+              v-model="dialogDelete"
+              max-width="600px"
+            >
+              <v-card class="rounded-xl">
+                <v-card-title class="text-h5">
+                  ¿Seguro que desea eliminar este elemento?
+                </v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="closeDelete"
+                  >
+                    Cancelar
+                  </v-btn>
+                  <v-btn
+                    color="error"
+                    @click="deleteItemConfirm()"
+                  >
+                    OK
+                    <v-spacer v-if="loadDelete"></v-spacer>
+                    <v-progress-circular
+                      v-if="loadDelete"
+                      indeterminate
+                      color="white"
+                    ></v-progress-circular>
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-col>
         </v-toolbar>
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon
-          medium
-          @click="getSolicitudDetalle(item)"
-        >
-          {{ icons.mdiClipboardList }}
-        </v-icon>
+        <v-row>
+          <v-col>
+            <v-icon
+              medium
+              @click="getSolicitudDetalle(item)"
+            >
+              {{ icons.mdiClipboardList }}
+            </v-icon>
+            <v-menu
+              offset-y
+              class="rounded-xl"
+            >
+              <template v-slot:activator="{ attrs, on }">
+                <v-icon
+                  medium
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  {{ icons.mdiSwapVertical }}
+                </v-icon>
+              </template>
+
+              <v-list>
+                <v-list-item
+                  v-for="items in dataStatus"
+                  :key="items.CodEstado"
+                  link
+                  @click="changeStatus(item, items)"
+                >
+                  <v-list-item-title v-text="items.Descripcion"></v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-col>
+        </v-row>
       </template>
       <template v-slot:no-data>
         <v-btn
@@ -182,6 +431,8 @@ import {
   mdiPageLayoutHeader,
   mdiVuetify,
   mdiMagnify,
+  mdiFormatListText,
+  mdiSwapVertical,
 } from '@mdi/js'
 import axios from 'axios'
 import validateLogin from '@/services/validateLogin'
@@ -205,15 +456,19 @@ export default {
       mdiPageLayoutHeader,
       mdiVuetify,
       mdiMagnify,
+      mdiFormatListText,
+      mdiSwapVertical,
     },
     dialog: false,
     dialog2: false,
     dialogLoad: false,
     dialogDelete: false,
+    dialogStatus: false,
     snackbar: false,
     overlay: false,
     loadingData: false,
     loadingProrrateo: false,
+    loadChangeStatus: false,
     switch1: false,
     loadDelete: false,
     row: null,
@@ -256,6 +511,7 @@ export default {
       { text: 'Numero Factura', value: 'NumeroFactura' },
       { text: 'Establecimiento', value: 'NombreEstablecimiento_Persona' },
       { text: 'Monto', value: 'Monto' },
+      { text: '', value: 'actionsDetails' },
     ],
     headersConcepto: [
       {
@@ -278,6 +534,7 @@ export default {
     dataReintegro: [],
     dataDetalleReintegro: [],
     dataStatus: [],
+    dataStatusByPermiso: [],
     editedIndex: -1,
     items: [],
     actions: [],
@@ -288,6 +545,17 @@ export default {
     linea: 0,
     ceco: 0,
     permisos: [],
+    itemStatus: '',
+    status: '',
+    typeSearch: false,
+    itemsDetail: {
+      centroCosto: '',
+      cuentaContable: '',
+      Linea: '',
+      concepto: '',
+      establecimiento: '',
+      numFactura: '',
+    },
   }),
 
   computed: {
@@ -349,6 +617,7 @@ export default {
     },
     getReintegro() {
       this.overlay = true
+      this.getStatus()
 
       // const role = sessionStorage.getItem('roleRei')
 
@@ -414,8 +683,9 @@ export default {
         }
       })
     },
-    getReintegroPaginationStatus() {
+    getReintegroPaginationStatus(item) {
       this.overlay = true
+      this.statusCodeSol = item.nameStatus
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
       axios.get(`/api/reintegro?perPage=${this.perPage}&page=${this.page}&status=${this.statusCodeSol}`).then(response => {
         if (response.data.data === null) {
@@ -440,7 +710,28 @@ export default {
         }
       })
     },
+    getReintegroById() {
+      if (this.idSolicitud === '') {
+        this.snackbar = true
+        this.text = 'Favor ingrese un numero de solicitud'
+      } else {
+        this.overlay = true
+        axios.get(`/api/reintegro/${this.idSolicitud}`).then(response => {
+          console.log(response.data)
+          this.dataReintegro = response.data.data
+          this.overlay = false
+          this.totalPagina = response.data.last_page
+          this.totalRegistros = response.data.total
+          this.page = response.data.current_page
+        }).catch(error => {
+          this.snackbar = true
+          this.overlay = false
+          this.text = error
+        })
+      }
+    },
     getSolicitudDetalle(item) {
+      this.limpiarDetalles()
       this.dialog2 = true
       this.loadingData = true
       this.dataDetalleReintegro = []
@@ -466,7 +757,7 @@ export default {
     comprobarLogin() {
       const acciones = actions.enumActions()
       // eslint-disable-next-line eqeqeq
-      const access = this.permisos.find(element => element.IDACCION == acciones.VER_SOLICITUDES_DE_TODOS_LOS_USUARIOS)
+      const access = this.permisos.find(element => element.IDACCION == acciones.VISUALIZAR_SOLICITUDES)
 
       if (access === 0 || access === null || access === undefined) {
         this.$router.push('/dashboard')
@@ -487,7 +778,8 @@ export default {
       })
     },
     getStatus() {
-      axios.get('/api/status').then(response => {
+      const IdRole = sessionStorage.getItem('roleRei')
+      axios.get(`/api/statusbyrole?IdRole=${IdRole}`).then(response => {
         this.dataStatus = response.data
       }).catch(error => {
         console.log(error)
@@ -525,6 +817,78 @@ export default {
       if (estado === 'Rechazado') return '#7f0000'
 
       return '#102027'
+    },
+    changeStatus(item, status) {
+      this.dialogStatus = true
+      this.itemStatus = status // `${status} ${item.IdSolicitud}`
+      this.idSolicitud = item.IdSolicitud
+      this.status = status.CodEstado
+    },
+    putStatusSolicitud() {
+      this.loadChangeStatus = true
+      axios.put(`/api/reintegroStatus/${this.idSolicitud}`, { status: this.status }).then(response => {
+        this.snackbar = true
+        this.text = response.data.mensaje
+        this.dialogStatus = false
+        this.loadChangeStatus = false
+        this.pagination()
+      }).catch(error => {
+        this.snackbar = true
+        this.text = error
+        this.loadChangeStatus = false
+      })
+    },
+    selectDetails(item) {
+      this.itemsDetail.concepto = item.Concepto
+      this.itemsDetail.cuentaContable = item.Cuenta_Contable
+      this.itemsDetail.numFactura = item.NumeroFactura
+      this.itemsDetail.monto = item.Monto
+      this.itemsDetail.establecimiento = item.NombreEstablecimiento_Persona
+      this.itemsDetail.fechaFactura = item.FechaFactura
+      this.itemsDetail.Linea = item.Linea
+      this.itemsDetail.centroCosto = item.CENTRO_COSTO
+      console.log(item)
+    },
+    editLineasDetalles() {
+      if (this.itemsDetail.Linea !== '') {
+        const index = this.dataDetalleReintegro.findIndex((obj => obj.Linea === this.itemsDetail.Linea))
+        this.dataDetalleReintegro[index].CENTRO_COSTO = this.itemsDetail.centroCosto
+        this.dataDetalleReintegro[index].Cuenta_Contable = this.itemsDetail.cuentaContable
+        this.dataDetalleReintegro[index].Concepto = this.itemsDetail.concepto
+        this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
+        this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
+      } else {
+        // eslint-disable-next-line no-plusplus
+        for (let index = 0; index < this.dataDetalleReintegro.length; index++) {
+          this.dataDetalleReintegro[index].CENTRO_COSTO = this.itemsDetail.centroCosto
+          this.dataDetalleReintegro[index].Cuenta_Contable = this.itemsDetail.cuentaContable
+          this.dataDetalleReintegro[index].Concepto = this.itemsDetail.concepto
+          this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
+          this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
+        }
+      }
+    },
+    deleteLinea() {
+      this.loadDelete = true
+      axios.delete(`/api/reintegro/${this.idSolicitud}?Linea=${this.linea}&centroCosto=${this.ceco}`).then(response => {
+        this.snackbar = true
+        this.text = `${response.data.mensaje} Linea: ${response.data.Linea} Solicitud: ${response.data.Solicitud}`
+        const item = { IdSolicitud: this.idSolicitud, nameStatus: 1 }
+        this.getSolicitudDetalle(item)
+        this.closeDelete()
+        this.loadDelete = false
+      }).catch(error => {
+        this.snackbar = true
+        this.text = error
+        this.loadDelete = false
+      })
+    },
+    limpiarDetalles() {
+      this.itemsDetail.numFactura = ''
+      this.itemsDetail.establecimiento = ''
+      this.itemsDetail.concepto = ''
+      this.itemsDetail.Linea = ''
+      this.itemsDetail.cuentaContable = ''
     },
   },
 }

@@ -4,6 +4,7 @@ export default {
       sessionStorage.removeItem('tknReiFormunica')
       sessionStorage.removeItem('userRei')
       sessionStorage.removeItem('roleRei')
+      localStorage.removeItem('themeReintegro')
     }, 1500)
   },
 }

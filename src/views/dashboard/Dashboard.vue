@@ -55,7 +55,7 @@ export default {
       const access = this.permisos.find(element => element.IDACCION == acciones.ACCESO_AL_SISTEMA)
 
       if (access === 0 || access === null || access === undefined) {
-        this.$router.push('/dashboard')
+        this.$router.push('/')
       }
 
       if (!validateLogin.validateToken()) {

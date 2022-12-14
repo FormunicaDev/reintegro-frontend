@@ -121,7 +121,7 @@ export default {
     validarPermisos() {
       const acciones = actions.enumActions()
       // eslint-disable-next-line eqeqeq
-      const res = this.permisos.find(element => element.IDACCION == acciones.VER_SOLICITUDES_DE_TODOS_LOS_USUARIOS)
+      const res = this.permisos.find(element => element.IDACCION == acciones.VISUALIZAR_SOLICITUDES)
       const usuario = res.USUARIO
       if (usuario !== '') {
         this.access.solicitudes = true
