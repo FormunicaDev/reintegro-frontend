@@ -6,6 +6,25 @@
     <v-card-title>
       <v-spacer></v-spacer>
     </v-card-title>
+    <v-row>
+      <v-col cols="4"></v-col>
+      <v-col
+        cols="4"
+        align-self="center"
+      >
+        <v-alert
+          v-model="alert"
+          border="top"
+          dense
+          dismissible
+          shaped
+          outlined
+          type="info"
+        >
+          Asiento: {{ asiento }}
+        </v-alert>
+      </v-col>
+    </v-row>
     <v-data-table
       :headers="headers"
       :items="dataReintegro"
@@ -17,8 +36,7 @@
       <template v-slot:top>
         <v-snackbar
           v-model="snackbar"
-          color="success"
-          outlined
+          color="primary"
           rounded="pill"
         >
           {{ text }}
@@ -563,6 +581,8 @@ export default {
       establecimiento: '',
       numFactura: '',
     },
+    asiento: '',
+    alert: false,
   }),
 
   computed: {
@@ -841,15 +861,24 @@ export default {
       this.loadChangeStatus = true
       axios.put(`/api/reintegroStatus/${this.idSolicitud}`, { status: this.status }).then(response => {
         this.snackbar = true
-        this.text = response.data.mensaje
+        // eslint-disable-next-line no-multi-assign, no-param-reassign
+        this.asiento = response.data.asiento === 'undefined' || response.data.asiento == null ? '' : response.data.asiento[0].asiento
+        this.text = `${response.data.mensaje}`
         this.dialogStatus = false
         this.loadChangeStatus = false
         this.pagination()
+        this.showAlert()
       }).catch(error => {
         this.snackbar = true
         this.text = error
         this.loadChangeStatus = false
       })
+    },
+    showAlert() {
+      this.alert = true
+      setTimeout(() => {
+        this.alert = false
+      }, 5000)
     },
     selectDetails(item) {
       if (this.role === 1501 || this.role === 1500) {
