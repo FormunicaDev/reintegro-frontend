@@ -262,7 +262,6 @@
                                     inset
                                     color="info"
                                     :label="`¿Es prorrateo?: ${switch1 === true ? 'Si':'No'}`"
-
                                   ></v-switch>
                                 </v-col>
                               </v-row>
@@ -1373,17 +1372,22 @@ export default {
       })
     },
     putDetalleSolicitud() {
-      this.dialogLoad = true
-      this.data.items = this.dataDetalleReintegro
-      axios.put(`/api/reintegro/${this.idSolicitud}`, this.data).then(response => {
+      if (this.role === 1501 || this.role === 1500) {
+        this.dialogLoad = true
+        this.data.items = this.dataDetalleReintegro
+        axios.put(`/api/reintegro/${this.idSolicitud}`, this.data).then(response => {
+          this.snackbar = true
+          this.text = response.data.mensaje
+          this.dialogLoad = false
+        }).catch(error => {
+          this.snackbar = true
+          this.text = error.data.mensaje
+          this.dialogLoad = false
+        })
+      } else {
         this.snackbar = true
-        this.text = response.data.mensaje
-        this.dialogLoad = false
-      }).catch(error => {
-        this.snackbar = true
-        this.text = error.data.mensaje
-        this.dialogLoad = false
-      })
+        this.text = 'No posee permisos para realizar esta acción'
+      }
     },
     printReintegro(item) {
       const { IdSolicitud } = item
