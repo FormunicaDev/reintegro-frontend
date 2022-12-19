@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/valid-v-for -->
 <template>
   <v-app>
     <vertical-nav-menu :is-drawer-open.sync="isDrawerOpen"></vertical-nav-menu>
@@ -20,7 +21,66 @@
 
           <!-- Right Content -->
           <theme-switcher></theme-switcher>
+          <v-menu
+            v-if="alert"
+            offset-y
+            left
+            nudge-bottom="14"
+            min-width="230"
+            content-class="user-profile-menu-content"
+            max-height="200"
+          >
+            <template v-slot:activator="{on,attrs}">
+              <v-badge
+                :content="cantidad"
+                :value="cantidad"
+                color="success"
+                overlap
+              >
+                <v-icon
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="notification()"
+                >
+                  {{ icons.mdiBellOutline }}
+                </v-icon>
+              </v-badge>
+            </template>
+            <v-list shaped>
+              <v-list-item-group class="scrollList">
+                <template v-for="(item,i) in items">
+                  <v-divider
+                    v-if="!item"
+                    :key="`divider-${i}`"
+                    class="my-2"
+                  >
+                  </v-divider>
+                  <v-list-item
+                    v-else
+                    :key="`item-${i}`"
+                    link
+                    :value="item"
+                  >
+                    <v-list-item-icon class="me-2">
+                      <v-icon size="18">
+                        {{ icons.mdiBellRing }}
+                      </v-icon>
+                    </v-list-item-icon>
 
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <small>{{ item.USUARIO }}</small>
+                      </v-list-item-title>
+                      <v-list-item-title>{{ item.Descripcion }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                  <v-divider
+                    class="my-2"
+                  ></v-divider>
+                </template>
+              </v-list-item-group>
+            </v-list>
+          </v-menu>
           <app-bar-user-menu></app-bar-user-menu>
         </div>
       </div>
@@ -60,8 +120,9 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { ref } from '@vue/composition-api'
-import { mdiMagnify, mdiBellOutline, mdiGithub } from '@mdi/js'
+import { mdiMagnify, mdiBellOutline, mdiBellRing } from '@mdi/js'
 import VerticalNavMenu from './components/vertical-nav-menu/VerticalNavMenu.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
 import AppBarUserMenu from './components/AppBarUserMenu.vue'
@@ -77,14 +138,44 @@ export default {
 
     return {
       isDrawerOpen,
+      insert: false,
+      alert: true,
 
       // Icons
       icons: {
         mdiMagnify,
         mdiBellOutline,
-        mdiGithub,
+        mdiBellRing,
       },
     }
+  },
+  data() {
+    return {
+      cantidad: 0,
+      items: [],
+      status: '',
+    }
+  },
+  mounted() {
+    this.notification()
+  },
+  methods: {
+    notification() {
+      const role = sessionStorage.getItem('roleRei')
+      this.status = this.getStatus(role)
+      axios.get(`/api/reintegro?status=${this.status}`).then(response => {
+        this.items = response.data.data
+        this.cantidad = this.items.length
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    getStatus(role) {
+      if (role === '1502') return '3'
+      if (role === '1501') return '1'
+
+      return '1'
+    },
   },
 }
 </script>

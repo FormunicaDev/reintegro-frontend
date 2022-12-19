@@ -17,7 +17,6 @@
           border="top"
           dense
           dismissible
-          shaped
           outlined
           type="info"
         >
@@ -686,7 +685,8 @@ export default {
       if (status === '' || status === null) {
         this.getReintegroPagination()
       } else {
-        this.getReintegroPaginationStatus()
+        const item = { nameStatus: status }
+        this.getReintegroPaginationStatus(item)
       }
     },
     getReintegroPagination() {
@@ -823,7 +823,6 @@ export default {
     },
     filtrar() {
       const status = this.statusCodeSol
-      console.log(status)
       if (status === '' || status === null) {
         this.getReintegro()
       } else {
@@ -870,15 +869,17 @@ export default {
         this.showAlert()
       }).catch(error => {
         this.snackbar = true
-        this.text = error
+        console.log(error)
         this.loadChangeStatus = false
       })
     },
     showAlert() {
-      this.alert = true
-      setTimeout(() => {
-        this.alert = false
-      }, 5000)
+      if (this.status === '7' || this.status === 'CON') {
+        this.alert = true
+        setTimeout(() => {
+          this.alert = false
+        }, 5000)
+      }
     },
     selectDetails(item) {
       if (this.role === 1501 || this.role === 1500) {
