@@ -173,6 +173,22 @@
                                 <v-col
                                   cols="12"
                                   sm="6"
+                                  md="2"
+                                >
+                                  <v-autocomplete
+                                    v-model="reintegroItem.Pais"
+                                    label="País"
+                                    outlined
+                                    dense
+                                    chips
+                                    :items="dataCountry"
+                                    item-text="Pais"
+                                    item-value="IdPais"
+                                  ></v-autocomplete>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  sm="6"
                                   md="4"
                                 >
                                   <v-text-field
@@ -224,7 +240,7 @@
                                       default="0"
                                     >
                                       <v-radio
-                                        label="Cordoba"
+                                        label="Local"
                                         value="0"
                                       ></v-radio>
                                       <v-radio
@@ -901,6 +917,7 @@ export default {
     ],
     dataReintegro: [],
     dataDetalleReintegro: [],
+    dataCountry: [],
     tipoPago: [],
     centroCosto: [],
     conceptoPago: [],
@@ -922,6 +939,7 @@ export default {
       FECHAUPDATE: '',
       flgAsientoGEnerado: 0,
       Asiento: null,
+      Pais: 0,
       items: [],
     },
     items: [],
@@ -980,6 +998,7 @@ export default {
   created() {
     this.getReintegro()
     this.getPermisos()
+    this.getCountry()
   },
 
   methods: {
@@ -1029,7 +1048,7 @@ export default {
       // const role = sessionStorage.getItem('roleRei')
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegro?perPage=${this.perPage}&user=${user}`).then(response => {
+      axios.get(`/api/reintegro?perPage=${this.perPage}&user=${user}&Pais=${this.reintegroItem.Pais}`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -1214,6 +1233,7 @@ export default {
       this.getCentroCosto()
       this.getTipoPago()
       this.getConceptoPago()
+      this.getCountry()
     },
     stepNext() {
       if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.tipoPago === 0 || this.reintegroItem.Monto === 0 || this.reintegroItem.Beneficiario === '') {
@@ -1392,6 +1412,15 @@ export default {
     printReintegro(item) {
       const { IdSolicitud } = item
       window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}`, '_blank')
+    },
+    getCountry() {
+      const user = sessionStorage.getItem('userRei')
+      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
+        this.dataCountry = response.data
+        this.reintegroItem.Pais = this.dataCountry[0].IdPais
+      }).catch(error => {
+        console.log(error)
+      })
     },
   },
 }

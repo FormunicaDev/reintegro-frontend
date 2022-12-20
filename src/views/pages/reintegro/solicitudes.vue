@@ -3,6 +3,28 @@
     elevation="7"
     class="rounded-xl"
   >
+    <v-row>
+      <v-col cols="4"></v-col>
+      <v-col cols="4"></v-col>
+      <v-col
+        cols="4"
+        align-self="center"
+      >
+        <v-autocomplete
+          v-model="Pais"
+          dense
+          :items="dataCountry"
+          item-text="Pais"
+          item-value="IdPais"
+          label="País"
+          chips
+          :loading="loadCountry"
+          small-chips
+          multiple
+        >
+        </v-autocomplete>
+      </v-col>
+    </v-row>
     <v-card-title>
       <v-spacer></v-spacer>
     </v-card-title>
@@ -569,6 +591,7 @@ export default {
     linea: 0,
     ceco: 0,
     permisos: [],
+    dataCountry: [],
     itemStatus: '',
     status: '',
     typeSearch: false,
@@ -582,6 +605,8 @@ export default {
     },
     asiento: '',
     alert: false,
+    loadCountry: false,
+    Pais: [],
   }),
 
   computed: {
@@ -601,6 +626,7 @@ export default {
   },
 
   created() {
+    this.getCountry()
     this.getPermisos()
     this.getReintegro()
     this.getStatus()
@@ -649,35 +675,38 @@ export default {
     getReintegro() {
       this.overlay = true
       this.getStatus()
+      this.getCountry()
 
       // const role = sessionStorage.getItem('roleRei')
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegrobyrol?perPage?${this.perPage}&IdRole=${this.role}`).then(response => {
-        if (response.data.data === null) {
+      setTimeout(() => {
+        axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
+          if (response.data.data === null) {
+            this.snackbar = true
+            this.text = 'No existen registros en la base de datos'
+            this.overlay = false
+            this.totalPagina = 0
+            this.totalRegistros = 0
+            this.page = 1
+          } else {
+            this.dataReintegro = response.data.data
+            this.overlay = false
+            this.totalPagina = response.data.last_page
+            this.totalRegistros = response.data.total
+            this.page = response.data.current_page
+          }
+        }).catch(error => {
+          console.log(error.message)
           this.snackbar = true
-          this.text = 'No existen registros en la base de datos'
+          this.text = `${error.message} - Revise su conexion`
           this.overlay = false
-          this.totalPagina = 0
-          this.totalRegistros = 0
-          this.page = 1
-        } else {
-          this.dataReintegro = response.data.data
-          this.overlay = false
-          this.totalPagina = response.data.last_page
-          this.totalRegistros = response.data.total
-          this.page = response.data.current_page
-        }
-      }).catch(error => {
-        console.log(error.message)
-        this.snackbar = true
-        this.text = `${error.message} - Revise su conexion`
-        this.overlay = false
-        if (error.response.data.mensaje === 'invalid') {
-          validateToken.logout()
-          this.$router.push({ name: 'pages-login' })
-        }
-      })
+          if (error.response.data.mensaje === 'invalid') {
+            validateToken.logout()
+            this.$router.push({ name: 'pages-login' })
+          }
+        })
+      }, 1000)
     },
     pagination() {
       const status = this.statusCodeSol
@@ -719,7 +748,7 @@ export default {
       this.overlay = true
       this.statusCodeSol = item.nameStatus
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&page=${this.page}&status=${this.statusCodeSol}&IdRole=${this.role}`).then(response => {
+      axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&page=${this.page}&status=${this.statusCodeSol}&IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -748,7 +777,7 @@ export default {
         this.text = 'Favor ingrese un numero de solicitud'
       } else {
         this.overlay = true
-        axios.get(`/api/reintegro/${this.idSolicitud}?IdRole=${this.role}`).then(response => {
+        axios.get(`/api/reintegro/${this.idSolicitud}?IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
           console.log(response.data)
           this.dataReintegro = response.data.data
           this.overlay = false
@@ -827,7 +856,7 @@ export default {
         this.getReintegro()
       } else {
         this.overlay = true
-        axios.get(`/api/reintegro?status=${status}`).then(response => {
+        axios.get(`/api/reintegro?status=${status}&Pais=${this.Pais}`).then(response => {
           this.dataReintegro = response.data.data
           this.page = response.data.current_page
           this.totalPagina = response.data.last_page
@@ -954,6 +983,19 @@ export default {
       this.itemsDetail.concepto = ''
       this.itemsDetail.Linea = ''
       this.itemsDetail.cuentaContable = ''
+    },
+    getCountry() {
+      this.loadCountry = true
+      const user = sessionStorage.getItem('userRei')
+      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
+        this.dataCountry = response.data
+        this.Pais = []
+        this.Pais.push(this.dataCountry[0].IdPais)
+        this.loadCountry = false
+      }).catch(error => {
+        console.log(error)
+        this.loadCountry = false
+      })
     },
   },
 }

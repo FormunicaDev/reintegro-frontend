@@ -1,13 +1,15 @@
 // eslint-disable-next-line camelcase
-import jwt_decode from 'jwt-decode'
+// import jwt_decode from 'jwt-decode'
+import jwt from 'jsonwebtoken'
 import axios from 'axios'
 
 export default {
   validateToken() {
     if (sessionStorage.getItem('tknReiFormunica') !== null) {
       const token = sessionStorage.getItem('tknReiFormunica')
-      const decode = jwt_decode(token)
-      const date = new Date(decode.exp)
+      const decode = jwt.decode(token) // jwt_decode(token)
+      const date = decode.exp
+
       const usuario = sessionStorage.getItem('userRei')
       if (date > Date.now()) {
         sessionStorage.removeItem('tknReiFormunica')
@@ -40,8 +42,8 @@ export default {
   },
   expirationToken() {
     const token = sessionStorage.getItem('tknFormunica')
-    const decode = jwt_decode(token)
-    const date = new Date(decode.exp)
+    const decode = jwt.decode(token) // jwt_decode(token)
+    const date = decode.exp
 
     console.log(date)
   },

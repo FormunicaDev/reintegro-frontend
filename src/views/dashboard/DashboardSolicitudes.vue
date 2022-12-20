@@ -75,6 +75,8 @@ export default {
   data: () => ({
     loading: false,
     statisticsData: [],
+    dataCountry: [],
+    Pais: [],
     icons: {
       mdiDotsVertical,
       mdiClipboardClockOutline,
@@ -88,6 +90,7 @@ export default {
     },
   }),
   created() {
+    this.getCountry()
     this.getEstadistica()
   },
   methods: {
@@ -96,23 +99,25 @@ export default {
       const user = sessionStorage.getItem('userRei')
       this.loading = true
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      if (role === '1500') {
-        axios.get('/api/estadistica').then(response => {
-          this.statisticsData = response.data
-          this.loading = false
-        }).catch(error => {
-          console.log(error)
-          this.loading = false
-        })
-      } else {
-        axios.get(`/api/estadistica?user=${user}`).then(response => {
-          this.statisticsData = response.data
-          this.loading = false
-        }).catch(error => {
-          console.log(error)
-          this.loading = false
-        })
-      }
+      setTimeout(() => {
+        if (role === '1500') {
+          axios.get(`/api/estadistica?Pais=${this.Pais}`).then(response => {
+            this.statisticsData = response.data
+            this.loading = false
+          }).catch(error => {
+            console.log(error)
+            this.loading = false
+          })
+        } else {
+          axios.get(`/api/estadistica?user=${user}&Pais=${this.Pais}`).then(response => {
+            this.statisticsData = response.data
+            this.loading = false
+          }).catch(error => {
+            console.log(error)
+            this.loading = false
+          })
+        }
+      }, 1000)
     },
     iconsStadistics(data) {
       if (data === 'Pendiente') return mdiClipboardClockOutline
@@ -131,6 +136,22 @@ export default {
       if (data === 'Finalizado') return '#4B731B'
 
       return '#82937A'
+    },
+    getCountry() {
+      this.loadCountry = true
+      const user = sessionStorage.getItem('userRei')
+      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
+        this.dataCountry = response.data
+        this.Pais = []
+        // eslint-disable-next-line no-plusplus
+        for (let index = 0; index < this.dataCountry.length; index++) {
+          this.Pais.push(this.dataCountry[index].IdPais)
+        }
+        this.loadCountry = false
+      }).catch(error => {
+        console.log(error)
+        this.loadCountry = false
+      })
     },
   },
 }

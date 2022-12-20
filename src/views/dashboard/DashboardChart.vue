@@ -59,6 +59,8 @@ export default {
   data: () => ({
     loading: false,
     series: [],
+    dataCountry: [],
+    Pais: [],
     url: '',
     seriesBar: [{ data: [] }],
     chartOptions: {
@@ -105,36 +107,55 @@ export default {
 
   }),
   mounted() {
+    this.getCountry()
     this.getData()
   },
   methods: {
     getData() {
-      this.loading = true
-      const role = sessionStorage.getItem('roleRei')
-      const user = sessionStorage.getItem('userRei')
+      setTimeout(() => {
+        this.loading = true
+        const role = sessionStorage.getItem('roleRei')
+        const user = sessionStorage.getItem('userRei')
 
-      if (role === '1500') {
-        this.url = '/api/estadistica'
-      } else {
-        this.url = `/api/estadistica?user=${user}`
-      }
-      axios.get(this.url).then(response => {
+        if (role === '1500') {
+          this.url = `/api/estadistica?Pais=${this.Pais}`
+        } else {
+          this.url = `/api/estadistica?user=${user}&Pais=${this.Pais}`
+        }
+        axios.get(this.url).then(response => {
         // this.series = response.data.map(element => parseInt(element.total, 10))
         // eslint-disable-next-line no-plusplus
-        for (let index = 0; index < response.data.length; index++) {
+          for (let index = 0; index < response.data.length; index++) {
           // eslint-disable-next-line radix
-          this.series.push(parseInt(response.data[index].total))
-          // eslint-disable-next-line radix
-          this.seriesBar[0].data.push(parseInt(response.data[index].total))
-          this.chartOptions.labels.push(response.data[index].title)
-          this.chartOptionsBar.xaxis.categories.push(response.data[index].title)
-        }
+            this.series.push(parseInt(response.data[index].total))
+            // eslint-disable-next-line radix
+            this.seriesBar[0].data.push(parseInt(response.data[index].total))
+            this.chartOptions.labels.push(response.data[index].title)
+            this.chartOptionsBar.xaxis.categories.push(response.data[index].title)
+          }
 
-        // this.chartOptions.labels = response.data.map(element => String(element.title))
-        this.loading = false
+          // this.chartOptions.labels = response.data.map(element => String(element.title))
+          this.loading = false
+        }).catch(error => {
+          console.log(error)
+          this.loading = false
+        })
+      }, 1000)
+    },
+    getCountry() {
+      this.loadCountry = true
+      const user = sessionStorage.getItem('userRei')
+      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
+        this.dataCountry = response.data
+        this.Pais = []
+        // eslint-disable-next-line no-plusplus
+        for (let index = 0; index < this.dataCountry.length; index++) {
+          this.Pais.push(this.dataCountry[index].IdPais)
+        }
+        this.loadCountry = false
       }).catch(error => {
         console.log(error)
-        this.loading = false
+        this.loadCountry = false
       })
     },
   },
