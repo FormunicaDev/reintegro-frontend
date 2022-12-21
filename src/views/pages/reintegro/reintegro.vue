@@ -321,15 +321,16 @@
                                   sm="6"
                                   md="3"
                                 >
-                                  <v-text-field
+                                  <v-autocomplete
                                     v-model="itemsLinea.cuentaContable"
-                                    v-mask="'#-##-##-###-###'"
                                     outlined
                                     dense
                                     label="Cuenta Contable"
-                                    hide-details
+                                    :items="dataCuentaContable"
+                                    item-text="Descripcion"
+                                    item-value="CuentaContable"
                                   >
-                                  </v-text-field>
+                                  </v-autocomplete>
                                 </v-col>
                                 <v-col
                                   cols="12"
@@ -918,6 +919,7 @@ export default {
     dataReintegro: [],
     dataDetalleReintegro: [],
     dataCountry: [],
+    dataCuentaContable: [],
     tipoPago: [],
     centroCosto: [],
     conceptoPago: [],
@@ -1229,11 +1231,19 @@ export default {
         console.log(error)
       })
     },
+    async getCuentaContable() {
+      await axios.get('/api/cuentacontable?perPage=100').then(response => {
+        this.dataCuentaContable = response.data.data
+      }).catch(error => {
+        console.log(error)
+      })
+    },
     nuevo() {
       this.getCentroCosto()
       this.getTipoPago()
       this.getConceptoPago()
       this.getCountry()
+      this.getCuentaContable()
     },
     stepNext() {
       if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.tipoPago === 0 || this.reintegroItem.Monto === 0 || this.reintegroItem.Beneficiario === '') {
@@ -1411,7 +1421,7 @@ export default {
     },
     printReintegro(item) {
       const { IdSolicitud } = item
-      window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}`, '_blank')
+      window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}`, '_blank')
     },
     getCountry() {
       const user = sessionStorage.getItem('userRei')

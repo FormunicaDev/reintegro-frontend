@@ -3,28 +3,158 @@
     elevation="7"
     class="rounded-xl"
   >
-    <v-row>
-      <v-col cols="4"></v-col>
-      <v-col cols="4"></v-col>
-      <v-col
-        cols="4"
-        align-self="center"
-      >
-        <v-autocomplete
-          v-model="Pais"
-          dense
-          :items="dataCountry"
-          item-text="Pais"
-          item-value="IdPais"
-          label="País"
-          chips
-          :loading="loadCountry"
-          small-chips
-          multiple
-        >
-        </v-autocomplete>
-      </v-col>
-    </v-row>
+    <v-container>
+      <v-row>
+        <v-col cols="7">
+          <v-card
+            elevation="7"
+            class="rounded-xl"
+          >
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <v-container fluid>
+                    <v-radio-group
+                      v-model="typeSearch"
+                      row
+                      label="Filtrar por:"
+                      default="0"
+                    >
+                      <v-radio
+                        label="Estado"
+                        :value="1"
+                      ></v-radio>
+                      <v-radio
+                        label="ID Solicitud"
+                        :value="2"
+                      ></v-radio>
+                      <v-radio
+                        label="Beneficiario"
+                        :value="3"
+                      ></v-radio>
+                      <v-radio
+                        label="Rango de Fechas"
+                        :value="4"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-container>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="4">
+          <v-card
+            elevation="7"
+            class="rounded-xl"
+          >
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <v-container>
+                    <v-autocomplete
+                      v-if="typeSearch === 1?true:false"
+                      v-model="statusCodeSol"
+                      :items="dataStatus"
+                      dense
+                      label="Estado"
+                      persistent-hint
+                      :item-text="concat"
+                      item-value="CodEstado"
+                      :prepend-icon="icons.mdiMagnify"
+                      clearable
+                      @input="filtrar()"
+                    >
+                    </v-autocomplete>
+                    <v-text-field
+                      v-if="typeSearch === 2? true:false"
+                      v-model="idSolicitud"
+                      dense
+                      label="Numero de Solicitud"
+                      :prepend-icon="icons.mdiMagnify"
+                      clearable
+                      @keyup.enter="getReintegroById()"
+                    >
+                    </v-text-field>
+                    <v-text-field
+                      v-if="typeSearch === 3? true:false"
+                      v-model="idSolicitud"
+                      dense
+                      label="Beneficiario"
+                      :prepend-icon="icons.mdiMagnify"
+                      clearable
+                      @keyup.enter="getReintegroById()"
+                    >
+                    </v-text-field>
+                    <v-row v-if="typeSearch === 4?true:false">
+                      <v-col cols="6">
+                        <v-menu
+                          v-model="menu2"
+                          :close-on-content-click="false"
+                          :nudge-right="40"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="datePicker"
+                              label="Fecha Inicio"
+                              :prepend-icon="icons.mdiCalendar"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="datePicker"
+                            @input="menu2 = false"
+                          ></v-date-picker>
+                        </v-menu>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-menu
+                          v-model="menu1"
+                          :close-on-content-click="false"
+                          :nudge-right="40"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              v-model="datePicker"
+                              label="Fecha Final"
+                              :prepend-icon="icons.mdiCalendar"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model="datePicker"
+                            @input="menu1 = false"
+                          ></v-date-picker>
+                        </v-menu>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-col>
+                <v-col>
+                  <v-btn
+                    v-if="typeSearch === 0?false:true"
+                    color="info"
+                    outlined
+                  >
+                    <v-icon>{{ icons.mdiMagnify }}</v-icon> Buscar
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
     <v-card-title>
       <v-spacer></v-spacer>
     </v-card-title>
@@ -102,48 +232,20 @@
             sm="6"
             md="4"
           >
-            <v-container fluid>
-              <v-radio-group
-                v-model="typeSearch"
-                row
-                label="Filtrar por:"
-                default="0"
-              >
-                <v-radio
-                  label="Estado"
-                  :value="false"
-                ></v-radio>
-                <v-radio
-                  label="ID Solicitud"
-                  :value="true"
-                ></v-radio>
-              </v-radio-group>
-            </v-container>
           </v-col>
           <v-autocomplete
-            v-if="!typeSearch"
-            v-model="statusCodeSol"
-            :items="dataStatus"
+            v-model="Pais"
             dense
-            label="Estado"
-            persistent-hint
-            :item-text="concat"
-            item-value="CodEstado"
-            :prepend-icon="icons.mdiMagnify"
-            clearable
-            @input="filtrar()"
+            :items="dataCountry"
+            item-text="Pais"
+            item-value="IdPais"
+            label="País"
+            chips
+            :loading="loadCountry"
+            small-chips
+            multiple
           >
           </v-autocomplete>
-          <v-text-field
-            v-if="typeSearch"
-            v-model="idSolicitud"
-            dense
-            label="Numero de Solicitud"
-            :prepend-icon="icons.mdiMagnify"
-            clearable
-            @keyup.enter="getReintegroById()"
-          >
-          </v-text-field>
           <v-divider
             class="mx-4"
             inset
@@ -478,6 +580,7 @@ import {
   mdiMagnify,
   mdiFormatListText,
   mdiSwapVertical,
+  mdiCalendar,
 } from '@mdi/js'
 import axios from 'axios'
 import validateLogin from '@/services/validateLogin'
@@ -488,6 +591,7 @@ export default {
 
   data: () => ({
     date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    datePicker: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     menu: false,
     icons: {
       mdiPencil,
@@ -503,6 +607,7 @@ export default {
       mdiMagnify,
       mdiFormatListText,
       mdiSwapVertical,
+      mdiCalendar,
     },
     dialog: false,
     dialog2: false,
@@ -607,6 +712,9 @@ export default {
     alert: false,
     loadCountry: false,
     Pais: [],
+    menu1: false,
+    menu2: false,
+    modal: false,
   }),
 
   computed: {
