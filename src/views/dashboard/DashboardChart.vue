@@ -107,11 +107,11 @@ export default {
 
   }),
   mounted() {
-    this.getCountry()
     this.getData()
   },
   methods: {
     getData() {
+      this.Pais = sessionStorage.getItem('countryUser')
       setTimeout(() => {
         this.loading = true
         const role = sessionStorage.getItem('roleRei')
@@ -141,22 +141,6 @@ export default {
           this.loading = false
         })
       }, 1000)
-    },
-    getCountry() {
-      this.loadCountry = true
-      const user = sessionStorage.getItem('userRei')
-      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
-        this.dataCountry = response.data
-        this.Pais = []
-        // eslint-disable-next-line no-plusplus
-        for (let index = 0; index < this.dataCountry.length; index++) {
-          this.Pais.push(this.dataCountry[index].IdPais)
-        }
-        this.loadCountry = false
-      }).catch(error => {
-        console.log(error)
-        this.loadCountry = false
-      })
     },
   },
 }

@@ -90,11 +90,11 @@ export default {
     },
   }),
   created() {
-    this.getCountry()
     this.getEstadistica()
   },
   methods: {
     getEstadistica() {
+      this.Pais = sessionStorage.getItem('countryUser')
       const role = sessionStorage.getItem('roleRei')
       const user = sessionStorage.getItem('userRei')
       this.loading = true
@@ -136,22 +136,6 @@ export default {
       if (data === 'Finalizado') return '#4B731B'
 
       return '#82937A'
-    },
-    getCountry() {
-      this.loadCountry = true
-      const user = sessionStorage.getItem('userRei')
-      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
-        this.dataCountry = response.data
-        this.Pais = []
-        // eslint-disable-next-line no-plusplus
-        for (let index = 0; index < this.dataCountry.length; index++) {
-          this.Pais.push(this.dataCountry[index].IdPais)
-        }
-        this.loadCountry = false
-      }).catch(error => {
-        console.log(error)
-        this.loadCountry = false
-      })
     },
   },
 }

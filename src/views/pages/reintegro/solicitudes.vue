@@ -3,158 +3,187 @@
     elevation="7"
     class="rounded-xl"
   >
-    <v-container>
-      <v-row>
-        <v-col cols="7">
-          <v-card
-            elevation="7"
-            class="rounded-xl"
-          >
-            <v-card-text>
-              <v-row>
-                <v-col>
-                  <v-container fluid>
-                    <v-radio-group
-                      v-model="typeSearch"
-                      row
-                      label="Filtrar por:"
-                      default="0"
-                    >
-                      <v-radio
-                        label="Estado"
-                        :value="1"
-                      ></v-radio>
-                      <v-radio
-                        label="ID Solicitud"
-                        :value="2"
-                      ></v-radio>
-                      <v-radio
-                        label="Beneficiario"
-                        :value="3"
-                      ></v-radio>
-                      <v-radio
-                        label="Rango de Fechas"
-                        :value="4"
-                      ></v-radio>
-                    </v-radio-group>
-                  </v-container>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="4">
-          <v-card
-            elevation="7"
-            class="rounded-xl"
-          >
-            <v-card-text>
-              <v-row>
-                <v-col>
-                  <v-container>
-                    <v-autocomplete
-                      v-if="typeSearch === 1?true:false"
-                      v-model="statusCodeSol"
-                      :items="dataStatus"
-                      dense
-                      label="Estado"
-                      persistent-hint
-                      :item-text="concat"
-                      item-value="CodEstado"
-                      :prepend-icon="icons.mdiMagnify"
-                      clearable
-                      @input="filtrar()"
-                    >
-                    </v-autocomplete>
-                    <v-text-field
-                      v-if="typeSearch === 2? true:false"
-                      v-model="idSolicitud"
-                      dense
-                      label="Numero de Solicitud"
-                      :prepend-icon="icons.mdiMagnify"
-                      clearable
-                      @keyup.enter="getReintegroById()"
-                    >
-                    </v-text-field>
-                    <v-text-field
-                      v-if="typeSearch === 3? true:false"
-                      v-model="idSolicitud"
-                      dense
-                      label="Beneficiario"
-                      :prepend-icon="icons.mdiMagnify"
-                      clearable
-                      @keyup.enter="getReintegroById()"
-                    >
-                    </v-text-field>
-                    <v-row v-if="typeSearch === 4?true:false">
-                      <v-col cols="6">
-                        <v-menu
-                          v-model="menu2"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              v-model="datePicker"
-                              label="Fecha Inicio"
-                              :prepend-icon="icons.mdiCalendar"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="datePicker"
-                            @input="menu2 = false"
-                          ></v-date-picker>
-                        </v-menu>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-menu
-                          v-model="menu1"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              v-model="datePicker"
-                              label="Fecha Final"
-                              :prepend-icon="icons.mdiCalendar"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            v-model="datePicker"
-                            @input="menu1 = false"
-                          ></v-date-picker>
-                        </v-menu>
+    <v-expansion-panels focusable>
+      <v-expansion-panel>
+        <v-expansion-panel-header>Filtros</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <v-container>
+            <v-row>
+              <v-col cols="7">
+                <v-card
+                  elevation="7"
+                  class="rounded-xl"
+                >
+                  <v-card-text>
+                    <v-row>
+                      <v-col>
+                        <v-container fluid>
+                          <v-radio-group
+                            v-model="typeSearch"
+                            row
+                            label="Filtrar por:"
+                            :default="0"
+                          >
+                            <v-radio
+                              label="Estado"
+                              :value="1"
+                            ></v-radio>
+                            <v-radio
+                              label="ID Solicitud"
+                              :value="2"
+                            ></v-radio>
+                            <v-radio
+                              label="Beneficiario"
+                              :value="3"
+                            ></v-radio>
+                            <v-radio
+                              label="Rango de Fechas"
+                              :value="4"
+                            ></v-radio>
+                          </v-radio-group>
+                        </v-container>
                       </v-col>
                     </v-row>
-                  </v-container>
-                </v-col>
-                <v-col>
-                  <v-btn
-                    v-if="typeSearch === 0?false:true"
-                    color="info"
-                    outlined
-                  >
-                    <v-icon>{{ icons.mdiMagnify }}</v-icon> Buscar
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="5">
+                <v-card
+                  elevation="7"
+                  class="rounded-xl"
+                >
+                  <v-card-text>
+                    <v-row>
+                      <v-container>
+                        <v-row>
+                          <v-col
+                            v-if="typeSearch === 1?true:false"
+                            cols="8"
+                          >
+                            <v-autocomplete
+                              v-if="typeSearch === 1?true:false"
+                              v-model="statusCodeSol"
+                              :items="dataStatus"
+                              dense
+                              label="Estado"
+                              persistent-hint
+                              :item-text="concat"
+                              item-value="CodEstado"
+                              :prepend-icon="icons.mdiMagnify"
+                              clearable
+                              @input="filtrar()"
+                            >
+                            </v-autocomplete>
+                          </v-col>
+                          <v-col
+                            v-if="typeSearch === 2? true:false"
+                            cols="8"
+                          >
+                            <v-text-field
+                              v-if="typeSearch === 2? true:false"
+                              v-model="idSolicitud"
+                              dense
+                              label="Numero de Solicitud"
+                              :prepend-icon="icons.mdiMagnify"
+                              clearable
+                              @keyup.enter="getReintegroById()"
+                            >
+                            </v-text-field>
+                          </v-col>
+                          <v-col
+                            v-if="typeSearch === 3? true:false"
+                            cols="8"
+                          >
+                            <v-text-field
+                              v-if="typeSearch === 3? true:false"
+                              v-model="beneficiario"
+                              dense
+                              label="Beneficiario"
+                              :prepend-icon="icons.mdiMagnify"
+                              clearable
+                              @keyup.enter="getReintegroByBeneficiario()"
+                            >
+                            </v-text-field>
+                          </v-col>
+                          <v-col
+                            v-if="typeSearch === 4?true:false"
+                            cols="9"
+                          >
+                            <v-row v-if="typeSearch === 4?true:false">
+                              <v-col cols="6">
+                                <v-menu
+                                  v-model="menu2"
+                                  :close-on-content-click="false"
+                                  :nudge-right="40"
+                                  transition="scale-transition"
+                                  offset-y
+                                  min-width="auto"
+                                >
+                                  <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field
+                                      v-model="datePicker"
+                                      label="Fecha Inicio"
+                                      :prepend-icon="icons.mdiCalendar"
+                                      readonly
+                                      v-bind="attrs"
+                                      v-on="on"
+                                    ></v-text-field>
+                                  </template>
+                                  <v-date-picker
+                                    v-model="datePicker"
+                                    @input="menu2 = false"
+                                  ></v-date-picker>
+                                </v-menu>
+                              </v-col>
+                              <v-col cols="6">
+                                <v-menu
+                                  v-model="menu1"
+                                  :close-on-content-click="false"
+                                  :nudge-right="40"
+                                  transition="scale-transition"
+                                  offset-y
+                                  min-width="auto"
+                                >
+                                  <template v-slot:activator="{ on, attrs }">
+                                    <v-text-field
+                                      v-model="datePicker2"
+                                      label="Fecha Final"
+                                      :prepend-icon="icons.mdiCalendar"
+                                      readonly
+                                      v-bind="attrs"
+                                      v-on="on"
+                                    ></v-text-field>
+                                  </template>
+                                  <v-date-picker
+                                    v-model="datePicker2"
+                                    @input="menu1 = false"
+                                  ></v-date-picker>
+                                </v-menu>
+                              </v-col>
+                            </v-row>
+                          </v-col>
+                          <v-col cols="2">
+                            <v-btn
+                              v-if="typeSearch !== 0?true:false"
+                              color="primary"
+                              outlined
+                              dense
+                              @click="getReintegroByFechas()"
+                            >
+                              <v-icon>{{ icons.mdiMagnify }}</v-icon>
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </v-expansion-panels>
     <v-card-title>
       <v-spacer></v-spacer>
     </v-card-title>
@@ -583,6 +612,8 @@ import {
   mdiCalendar,
 } from '@mdi/js'
 import axios from 'axios'
+import solicitudService from '@/services/solicitudes'
+import state from '@/services/status'
 import validateLogin from '@/services/validateLogin'
 import validateToken from '@/services/validateToken'
 import actions from '@/services/action'
@@ -592,6 +623,7 @@ export default {
   data: () => ({
     date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     datePicker: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+    datePicker2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
     menu: false,
     icons: {
       mdiPencil,
@@ -709,6 +741,7 @@ export default {
       numFactura: '',
     },
     asiento: '',
+    beneficiario: '',
     alert: false,
     loadCountry: false,
     Pais: [],
@@ -879,24 +912,53 @@ export default {
         }
       })
     },
-    getReintegroById() {
+    async getReintegroById() {
       if (this.idSolicitud === '') {
         this.snackbar = true
         this.text = 'Favor ingrese un numero de solicitud'
       } else {
         this.overlay = true
-        axios.get(`/api/reintegro/${this.idSolicitud}?IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
-          console.log(response.data)
-          this.dataReintegro = response.data.data
-          this.overlay = false
-          this.totalPagina = response.data.last_page
-          this.totalRegistros = response.data.total
-          this.page = response.data.current_page
-        }).catch(error => {
-          this.snackbar = true
-          this.overlay = false
-          this.text = error
-        })
+
+        const data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais)
+
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+        this.page = data.current_page
+        this.dataReintegro = data.data
+        this.overlay = false
+      }
+    },
+    async getReintegroByBeneficiario() {
+      if (this.beneficiario === '') {
+        this.snackbar = true
+        this.text = 'Favor ingrese el nombre del beneficiario'
+      } else {
+        this.overlay = true
+        const data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais)
+
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+        this.page = data.current_page
+        this.dataReintegro = data.data
+        this.overlay = false
+      }
+    },
+    async getReintegroByFechas() {
+      if (this.datePicker === '') {
+        this.snackbar = true
+        this.text = 'Favor seleccionar una fecha de inicio'
+      } else if (this.datePicker2 === '') {
+        this.snackbar = true
+        this.text = 'Favor seleccionar una fecha de inicio'
+      } else {
+        this.overlay = true
+        const data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2)
+
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+        this.page = data.current_page
+        this.dataReintegro = data.data
+        this.overlay = false
       }
     },
     getSolicitudDetalle(item) {
@@ -947,34 +1009,24 @@ export default {
         console.log(error)
       })
     },
-    getStatus() {
-      const IdRole = sessionStorage.getItem('roleRei')
-      axios.get(`/api/statusbyrole?IdRole=${IdRole}`).then(response => {
-        this.dataStatus = response.data
-      }).catch(error => {
-        console.log(error)
-      })
+    async getStatus() {
+      this.dataStatus = await state.status()
     },
     concat(item) {
       return `${item.Descripcion} - ${item.CodEstado}`
     },
-    filtrar() {
+    async filtrar() {
       const status = this.statusCodeSol
       if (status === '' || status === null) {
         this.getReintegro()
       } else {
         this.overlay = true
-        axios.get(`/api/reintegro?status=${status}&Pais=${this.Pais}`).then(response => {
-          this.dataReintegro = response.data.data
-          this.page = response.data.current_page
-          this.totalPagina = response.data.last_page
-          this.totalRegistros = response.data.total
-          this.overlay = false
-        }).catch(error => {
-          this.snackbar = true
-          this.text = error
-          this.overlay = false
-        })
+        const data = await solicitudService.reintegroByStatus(status, this.Pais)
+        this.dataReintegro = data.data
+        this.page = data.current_page
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+        this.overlay = false
       }
     },
     getColor(estado) {

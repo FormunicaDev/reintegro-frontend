@@ -205,6 +205,7 @@ export default {
             sessionStorage.setItem('tknReiFormunica', response.data.token)
             sessionStorage.setItem('userRei', response.data.user)
             sessionStorage.setItem('roleRei', response.data.rol)
+            sessionStorage.setItem('countryUser', response.data.country)
             axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.tknReiFormunica}`
             this.$router.push({ name: 'dashboard' })
             this.enabledBtn = false
