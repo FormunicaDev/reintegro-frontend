@@ -614,6 +614,7 @@ import {
 import axios from 'axios'
 import solicitudService from '@/services/solicitudes'
 import state from '@/services/status'
+import paisService from '@/services/country'
 import validateLogin from '@/services/validateLogin'
 import validateToken from '@/services/validateToken'
 import actions from '@/services/action'
@@ -766,11 +767,11 @@ export default {
     },
   },
 
-  created() {
-    this.getCountry()
-    this.getPermisos()
-    this.getReintegro()
-    this.getStatus()
+  async created() {
+    await this.getCountry()
+    await this.getPermisos()
+    await this.getReintegro()
+    await this.getStatus()
   },
 
   methods: {
@@ -813,40 +814,27 @@ export default {
     closeDelete() {
       this.dialogDelete = false
     },
-    getReintegro() {
+    async getReintegro() {
       this.overlay = true
-      this.getStatus()
-      this.getCountry()
-
-      // const role = sessionStorage.getItem('roleRei')
+      await this.getStatus()
+      await this.getCountry()
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      setTimeout(() => {
-        axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
-          if (response.data.data === null) {
-            this.snackbar = true
-            this.text = 'No existen registros en la base de datos'
-            this.overlay = false
-            this.totalPagina = 0
-            this.totalRegistros = 0
-            this.page = 1
-          } else {
-            this.dataReintegro = response.data.data
-            this.overlay = false
-            this.totalPagina = response.data.last_page
-            this.totalRegistros = response.data.total
-            this.page = response.data.current_page
-          }
-        }).catch(error => {
-          console.log(error.message)
+      setTimeout(async () => {
+        const data = await solicitudService.reintegro(this.role, this.Pais)
+        if (data.data === null) {
           this.snackbar = true
-          this.text = `${error.message} - Revise su conexion`
           this.overlay = false
-          if (error.response.data.mensaje === 'invalid') {
-            validateToken.logout()
-            this.$router.push({ name: 'pages-login' })
-          }
-        })
+          this.totalPagina = 0
+          this.totalRegistros = 0
+          this.page = 1
+        } else {
+          this.dataReintegro = data.data
+          this.overlay = false
+          this.totalPagina = data.last_page
+          this.totalRegistros = data.total
+          this.page = data.current_page
+        }
       }, 1000)
     },
     pagination() {
@@ -1144,18 +1132,13 @@ export default {
       this.itemsDetail.Linea = ''
       this.itemsDetail.cuentaContable = ''
     },
-    getCountry() {
+    async getCountry() {
       this.loadCountry = true
-      const user = sessionStorage.getItem('userRei')
-      axios.get(`/api/countrybyuser?user=${user}`).then(response => {
-        this.dataCountry = response.data
-        this.Pais = []
-        this.Pais.push(this.dataCountry[0].IdPais)
-        this.loadCountry = false
-      }).catch(error => {
-        console.log(error)
-        this.loadCountry = false
-      })
+      const data = await paisService.country()
+      this.dataCountry = data
+      this.Pais = []
+      this.Pais.push(this.dataCountry[0].IdPais)
+      this.loadCountry = false
     },
   },
 }
