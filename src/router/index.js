@@ -29,6 +29,11 @@ const routes = [
     component: () => import('@/views/pages/account-settings/AccountSettings.vue'),
   },
   {
+    path: '/pages/settings',
+    name: 'pages-settings',
+    component: () => import('@/views/pages/user-settings/settings.vue'),
+  },
+  {
     path: '/pages/login',
     name: 'pages-login',
     component: () => import('@/views/pages/Login.vue'),

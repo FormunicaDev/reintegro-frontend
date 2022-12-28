@@ -52,4 +52,14 @@ export default {
 
     return data
   },
+  async updateReintegro(IdSol, state) {
+    let data = []
+    await axios.put(`/api/reintegroStatus/${IdSol}`, { status: state }).then(res => {
+      data = res.data
+    }).catch(error => {
+      data = error
+    })
+
+    return data
+  },
 }

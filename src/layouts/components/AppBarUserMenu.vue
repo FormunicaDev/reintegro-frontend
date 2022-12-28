@@ -56,12 +56,36 @@
       <!-- Profile -->
       <v-list-item link>
         <v-list-item-icon class="me-2">
-          <v-icon size="22">
+          <v-icon
+            size="22"
+            @click="perfil()"
+          >
             {{ icons.mdiAccountOutline }}
           </v-icon>
         </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title>Perfil</v-list-item-title>
+        <v-list-item-content @click="perfil()">
+          <v-list-item-title @click="perfil()">
+            Perfil
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider class="my-2"></v-divider>
+
+      <!-- Profile -->
+      <v-list-item link>
+        <v-list-item-icon class="me-2">
+          <v-icon
+            size="22"
+            @click="settings()"
+          >
+            {{ icons.mdiCogOutline }}
+          </v-icon>
+        </v-list-item-icon>
+        <v-list-item-content @click="settings()">
+          <v-list-item-title @click="settings()">
+            Configuración
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -77,7 +101,7 @@
             {{ icons.mdiLogoutVariant }}
           </v-icon>
         </v-list-item-icon>
-        <v-list-item-content>
+        <v-list-item-content @click="cerrarSesion()">
           <v-list-item-title @click="cerrarSesion()">
             Cerrar Sesión
           </v-list-item-title>
@@ -129,6 +153,9 @@ export default {
     },
     perfil() {
       this.$router.push({ name: 'pages-account-settings' })
+    },
+    settings() {
+      this.$router.push({ name: 'pages-settings' })
     },
   },
 }

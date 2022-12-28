@@ -1033,9 +1033,20 @@ export default {
       this.idSolicitud = item.IdSolicitud
       this.status = status.CodEstado
     },
-    putStatusSolicitud() {
+    async putStatusSolicitud() {
       this.loadChangeStatus = true
-      axios.put(`/api/reintegroStatus/${this.idSolicitud}`, { status: this.status }).then(response => {
+      const data = await solicitudService.updateReintegro(this.idSolicitud, this.status)
+
+      this.snackbar = true
+      // eslint-disable-next-line no-multi-assign, no-param-reassign
+      this.asiento = data.asiento === 'undefined' || data.asiento == null ? '' : data.asiento[0].asiento
+      this.text = `${data.mensaje}`
+      this.dialogStatus = false
+      this.loadChangeStatus = false
+      this.pagination()
+      this.showAlert()
+
+      /* axios.put(`/api/reintegroStatus/${this.idSolicitud}`, { status: this.status }).then(response => {
         this.snackbar = true
         // eslint-disable-next-line no-multi-assign, no-param-reassign
         this.asiento = response.data.asiento === 'undefined' || response.data.asiento == null ? '' : response.data.asiento[0].asiento
@@ -1048,7 +1059,7 @@ export default {
         this.snackbar = true
         console.log(error)
         this.loadChangeStatus = false
-      })
+      }) */
     },
     showAlert() {
       if (this.status === '7' || this.status === 'CON') {
