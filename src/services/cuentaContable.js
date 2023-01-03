@@ -1,9 +1,9 @@
 import axios from 'axios'
 
 export default {
-  async getRelacionCuentaUser() {
+  async getRelacionCuentaUser(perPage) {
     let data = []
-    await axios.get('/api/cuentacontableuser?perPage=10').then(res => {
+    await axios.get(`/api/cuentacontableuser?perPage=${perPage}`).then(res => {
       data = res.data.data
     })
 
@@ -20,6 +20,22 @@ export default {
   async anularRelacionCuentaUser(Id) {
     let data = []
     await axios.delete(`/api/cuentacontableuser/${Id}`).then(res => {
+      data = res.data
+    })
+
+    return data
+  },
+  async listarCuentasContables() {
+    let data = []
+    await axios.get('/api/cuentacontable').then(res => {
+      data = res.data.data
+    })
+
+    return data
+  },
+  async activarRelacionCuentaUser(Id) {
+    let data = []
+    await axios.put(`/api/cuentacontableuser/${Id}`).then(res => {
       data = res.data
     })
 

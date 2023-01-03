@@ -134,8 +134,9 @@
                                     clearable
                                     small-chips
                                     label="Centro de Costo *"
-                                    item-text="DESCRIPCION"
-                                    item-value="CENTRO_COSTO"
+                                    item-text="Descripcion"
+                                    item-value="CentroCosto"
+                                    :loading="loadCeCo"
                                   ></v-autocomplete>
                                 </v-col>
                                 <v-col
@@ -184,6 +185,7 @@
                                     :items="dataCountry"
                                     item-text="Pais"
                                     item-value="IdPais"
+                                    @input="getCentroCosto()"
                                   ></v-autocomplete>
                                 </v-col>
                                 <v-col
@@ -826,6 +828,7 @@ import axios from 'axios'
 import validateLogin from '@/services/validateLogin'
 import validateToken from '@/services/validateToken'
 import actions from '@/services/action'
+import cuentaContableService from '@/services/cuentaContable'
 
 export default {
 
@@ -979,6 +982,7 @@ export default {
     statusCodeSol: '',
     linea: 0,
     ceco: 0,
+    loadCeCo: false,
   }),
 
   computed: {
@@ -1127,10 +1131,13 @@ export default {
       })
     },
     getCentroCosto() {
-      axios.get(`/api/centrocosto?perPage=${100}`).then(response => {
+      this.loadCeCo = true
+      axios.get(`/api/centrocosto?perPage=${100}&pais=${this.reintegroItem.Pais}`).then(response => {
         this.centroCosto = response.data.data
+        this.loadCeCo = false
       }).catch(error => {
         console.log(error)
+        this.loadCeCo = false
       })
     },
     getTipoPago() {
@@ -1232,11 +1239,8 @@ export default {
       })
     },
     async getCuentaContable() {
-      await axios.get('/api/cuentacontable?perPage=100').then(response => {
-        this.dataCuentaContable = response.data.data
-      }).catch(error => {
-        console.log(error)
-      })
+      const perPage = 100
+      this.dataCuentaContable = await cuentaContableService.getRelacionCuentaUser(perPage)
     },
     nuevo() {
       this.getCentroCosto()
