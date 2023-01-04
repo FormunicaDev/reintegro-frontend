@@ -850,7 +850,7 @@ export default {
     getReintegroPagination() {
       this.overlay = true
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&page=${this.page}&IdRole=${this.role}`).then(response => {
+      axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&page=${this.page}&IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
