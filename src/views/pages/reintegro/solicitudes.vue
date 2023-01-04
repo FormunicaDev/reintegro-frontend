@@ -168,7 +168,7 @@
                               color="primary"
                               outlined
                               dense
-                              @click="getReintegroByFechas()"
+                              @click="filtrar()"
                             >
                               <v-icon>{{ icons.mdiMagnify }}</v-icon>
                             </v-btn>
@@ -676,6 +676,7 @@ export default {
       { text: 'Beneficiario', value: 'Beneficiario' },
       { text: 'Concepto', value: 'Concepto' },
       { text: 'Cuenta de Banco', value: 'CUENTA_BANCO' },
+      { text: 'Asiento', value: 'Asiento' },
       { text: 'Usuario', value: 'USUARIO' },
       { text: '', value: 'actions', sortable: false },
     ],
@@ -1004,18 +1005,36 @@ export default {
       return `${item.Descripcion} - ${item.CodEstado}`
     },
     async filtrar() {
+      console.log(this.typeSearch)
+      this.overlay = true
       const status = this.statusCodeSol
-      if (status === '' || status === null) {
-        this.getReintegro()
-      } else {
-        this.overlay = true
-        const data = await solicitudService.reintegroByStatus(status, this.Pais)
-        this.dataReintegro = data.data
-        this.page = data.current_page
-        this.totalPagina = data.last_page
-        this.totalRegistros = data.total
-        this.overlay = false
+      let data
+      switch (this.typeSearch) {
+        case '0':
+          await this.getReintegro()
+          break
+        case 1:
+          data = await solicitudService.reintegroByStatus(status, this.Pais)
+          break
+        case 2:
+          data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais)
+          break
+        case 3:
+          data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais)
+          break
+        case 4:
+          data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2)
+          break
+        default:
+          this.overlay = false
+          break
       }
+
+      this.page = data.current_page
+      this.dataReintegro = data.data
+      this.totalPagina = data.last_page
+      this.totalRegistros = data.total
+      this.overlay = false
     },
     getColor(estado) {
       if (estado === 'Pendiente') return '#0288d1'
