@@ -1088,7 +1088,7 @@ export default {
       // const role = sessionStorage.getItem('roleRei')
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegro?perPage=${this.perPage}&user=${user}&Pais=${this.reintegroItem.Pais}`).then(response => {
+      axios.get(`/api/reintegro?perPage=${this.perPage}&user=${user}&Pais=${this.reintegroItem.Pais}&option=1`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -1118,7 +1118,7 @@ export default {
       this.overlay = true
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
       const user = sessionStorage.getItem('userRei')
-      axios.get(`/api/reintegro?perPage=${this.perPage}&page=${this.page}&user=${user}`).then(response => {
+      axios.get(`/api/reintegro?perPage=${this.perPage}&page=${this.page}&user=${user}&option=1`).then(response => {
         if (response.data.data === null) {
           this.snackbar = true
           this.text = 'No existen registros en la base de datos'
@@ -1229,7 +1229,7 @@ export default {
         this.dialogLoad = true
         axios.post('/api/reintegro', this.reintegroItem).then(response => {
           this.snackbar = true
-          this.text = response.data.mensaje
+          this.text = `${response.data.mensaje}- Numero de Solicitud: ${response.data.Solicitud}`
           this.getReintegro()
           this.limpiarCampos()
           this.dialogLoad = false
