@@ -833,7 +833,8 @@ export default {
     async getReintegro() {
       this.overlay = true
       await this.getStatus()
-      await this.getCountry()
+
+      // await this.getCountry()
 
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
       setTimeout(async () => {
