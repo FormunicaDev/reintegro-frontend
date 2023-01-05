@@ -37,8 +37,12 @@
                               :value="3"
                             ></v-radio>
                             <v-radio
-                              label="Rango de Fechas"
+                              label="Fechas"
                               :value="4"
+                            ></v-radio>
+                            <v-radio
+                              label="Todo"
+                              :value="5"
                             ></v-radio>
                           </v-radio-group>
                         </v-container>
@@ -212,7 +216,19 @@
       sort-by="FechaRegistro"
       class="elevation-1"
       hide-default-footer
+      :single-expand="singleExpand"
+      :expanded.sync="expanded"
+      show-expand
+      item-key="IdSolicitud"
     >
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length">
+          <tr><strong>Asiento: </strong> {{ item.Asiento }}</tr>
+          <tr><strong>Banco: </strong> {{ item.Banco }}</tr>
+          <tr><strong>Cuenta de Banco: </strong> {{ item.CUENTA_BANCO }}</tr>
+          <tr><strong>Concepto:</strong> {{ item.Concepto }}</tr>
+        </td>
+      </template>
       <template v-slot:top>
         <v-snackbar
           v-model="snackbar"
@@ -616,7 +632,6 @@ import solicitudService from '@/services/solicitudes'
 import state from '@/services/status'
 import paisService from '@/services/country'
 import validateLogin from '@/services/validateLogin'
-import validateToken from '@/services/validateToken'
 import actions from '@/services/action'
 
 export default {
@@ -674,8 +689,6 @@ export default {
       { text: 'Estado', value: 'nameStatus' },
       { text: 'Tipo de Pago', value: 'Descripcion' },
       { text: 'Beneficiario', value: 'Beneficiario' },
-      { text: 'Concepto', value: 'Concepto' },
-      { text: 'Cuenta de Banco', value: 'CUENTA_BANCO' },
       { text: 'Asiento', value: 'Asiento' },
       { text: 'Usuario', value: 'USUARIO' },
       { text: '', value: 'actions', sortable: false },
@@ -733,7 +746,7 @@ export default {
     dataCountry: [],
     itemStatus: '',
     status: '',
-    typeSearch: false,
+    typeSearch: 0,
     itemsDetail: {
       centroCosto: '',
       cuentaContable: '',
@@ -750,6 +763,8 @@ export default {
     menu1: false,
     menu2: false,
     modal: false,
+    singleExpand: true,
+    expanded: [],
   }),
 
   computed: {
@@ -838,68 +853,96 @@ export default {
         }
       }, 1000)
     },
-    pagination() {
+    async pagination() {
       const status = this.statusCodeSol
-
-      if (status === '' || status === null) {
-        this.getReintegroPagination()
-      } else {
-        const item = { nameStatus: status }
-        this.getReintegroPaginationStatus(item)
+      console.log(this.typeSearch)
+      switch (this.typeSearch) {
+        case 0:
+          await this.getReintegroPagination()
+          break
+        case 1:
+          // eslint-disable-next-line no-case-declarations
+          const item = { nameStatus: status }
+          await this.getReintegroPaginationStatus(item)
+          break
+        case 3:
+          await this.getReintegroPaginationBeneficiario()
+          break
+        case 4:
+          await this.getReintegroPaginationFechas()
+          break
+        case 5:
+          await this.getReintegroPagination()
+          break
+        default:
+          await this.getReintegroPagination()
+          break
       }
     },
-    getReintegroPagination() {
+    async getReintegroPaginationFechas() {
+      this.overlay = true
+      const data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2, this.page)
+      if (data.data === null) {
+        this.snackbar = true
+        this.text = 'No existen registros en la base de datos'
+        this.totalPagina = 0
+        this.totalRegistros = 0
+      } else {
+        this.dataReintegro = data.data
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+      }
+      this.overlay = false
+    },
+    async getReintegroPaginationBeneficiario() {
+      this.overlay = true
+      const data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais, this.page)
+      if (data.data === null) {
+        this.snackbar = true
+        this.text = 'No existen registros en la base de datos'
+        this.totalPagina = 0
+        this.totalRegistros = 0
+      } else {
+        this.dataReintegro = data.data
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+      }
+      this.overlay = false
+    },
+    async getReintegroPagination() {
       this.overlay = true
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&page=${this.page}&IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
-        if (response.data.data === null) {
-          this.snackbar = true
-          this.text = 'No existen registros en la base de datos'
-          this.overlay = false
-          this.totalPagina = 0
-          this.totalRegistros = 0
-        } else {
-          this.dataReintegro = response.data.data
-          this.overlay = false
-          this.totalPagina = response.data.last_page
-          this.totalRegistros = response.data.total
-        }
-      }).catch(error => {
+      const data = await solicitudService.reintegroPagination(this.perPage, this.page, this.role, this.Pais)
+      if (data.data === null) {
         this.snackbar = true
-        this.text = `${error.message} - Revise su conexion`
-        this.overlay = false
-        if (error.response.data.mensaje === 'invalid') {
-          validateToken.logout()
-          this.$router.push({ name: 'pages-login' })
-        }
-      })
+        this.text = 'No existen registros en la base de datos'
+        this.totalPagina = 0
+        this.totalRegistros = 0
+      } else {
+        this.dataReintegro = data.data
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+      }
+
+      this.overlay = false
     },
-    getReintegroPaginationStatus(item) {
+    async getReintegroPaginationStatus(item) {
       this.overlay = true
       this.statusCodeSol = item.nameStatus
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      axios.get(`/api/reintegrobyrol?perPage=${this.perPage}&page=${this.page}&status=${this.statusCodeSol}&IdRole=${this.role}&Pais=${this.Pais}`).then(response => {
-        if (response.data.data === null) {
-          this.snackbar = true
-          this.text = 'No existen registros en la base de datos'
-          this.overlay = false
-          this.totalPagina = 0
-          this.totalRegistros = 0
-        } else {
-          this.dataReintegro = response.data.data
-          this.overlay = false
-          this.totalPagina = response.data.last_page
-          this.totalRegistros = response.data.total
-        }
-      }).catch(error => {
+      const data = await solicitudService.reintegroPaginationStatus(this.perPage, this.statusCodeSol, this.role, this.Pais, this.page)
+      if (data.data === null) {
         this.snackbar = true
-        this.text = `${error.message} - Revise su conexion`
-        this.overlay = false
-        if (error.response.data.mensaje === 'invalid') {
-          validateToken.logout()
-          this.$router.push({ name: 'pages-login' })
-        }
-      })
+        this.text = 'No existen registros en la base de datos'
+        this.totalPagina = 0
+        this.totalRegistros = 0
+      } else {
+        this.dataReintegro = data.data
+        this.totalPagina = data.last_page
+        this.totalRegistros = data.total
+      }
+
+      this.overlay = false
     },
     async getReintegroById() {
       if (this.idSolicitud === '') {
@@ -1024,6 +1067,9 @@ export default {
           break
         case 4:
           data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2)
+          break
+        case 5:
+          data = await this.getReintegro()
           break
         default:
           this.overlay = false

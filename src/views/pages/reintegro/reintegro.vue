@@ -231,6 +231,22 @@
                                 </v-col>
                                 <v-col
                                   cols="12"
+                                  md="2"
+                                  sm="2"
+                                >
+                                  <v-autocomplete
+                                    v-model="reintegroItem.Banco"
+                                    label="Banco"
+                                    :items="bancos"
+                                    item-text="Banco"
+                                    item-value="IdBanco"
+                                    outlined
+                                    dense
+                                  >
+                                  </v-autocomplete>
+                                </v-col>
+                                <v-col
+                                  cols="12"
                                   sm="6"
                                   md="4"
                                 >
@@ -251,6 +267,20 @@
                                       ></v-radio>
                                     </v-radio-group>
                                   </v-container>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  sm="8"
+                                  md="6"
+                                >
+                                  <v-textarea
+                                    v-model="reintegroItem.Comentarios"
+                                    label="Comentarios"
+                                    outlined
+                                    auto-grow
+                                    rows="1"
+                                  >
+                                  </v-textarea>
                                 </v-col>
                                 <v-col cols="12">
                                   <v-alert
@@ -829,6 +859,7 @@ import validateLogin from '@/services/validateLogin'
 import validateToken from '@/services/validateToken'
 import actions from '@/services/action'
 import cuentaContableService from '@/services/cuentaContable'
+import banco from '@/services/banco'
 
 export default {
 
@@ -923,6 +954,7 @@ export default {
     dataDetalleReintegro: [],
     dataCountry: [],
     dataCuentaContable: [],
+    bancos: [],
     tipoPago: [],
     centroCosto: [],
     conceptoPago: [],
@@ -945,6 +977,8 @@ export default {
       flgAsientoGEnerado: 0,
       Asiento: null,
       Pais: 0,
+      Comentarios: '',
+      Banco: 0,
       items: [],
     },
     items: [],
@@ -1001,10 +1035,10 @@ export default {
     },
   },
 
-  created() {
+  async created() {
     this.getReintegro()
     this.getPermisos()
-    this.getCountry()
+    await this.getCountry()
   },
 
   methods: {
@@ -1130,7 +1164,8 @@ export default {
         this.loadingData = false
       })
     },
-    getCentroCosto() {
+    async getCentroCosto() {
+      await this.getBanco()
       this.loadCeCo = true
       axios.get(`/api/centrocosto?perPage=${100}&pais=${this.reintegroItem.Pais}`).then(response => {
         this.centroCosto = response.data.data
@@ -1242,12 +1277,13 @@ export default {
       const perPage = 100
       this.dataCuentaContable = await cuentaContableService.getRelacionCuentaUser(perPage)
     },
-    nuevo() {
-      this.getCentroCosto()
-      this.getTipoPago()
-      this.getConceptoPago()
-      this.getCountry()
-      this.getCuentaContable()
+    async nuevo() {
+      await this.getCentroCosto()
+      await this.getTipoPago()
+      await this.getConceptoPago()
+      await this.getCountry()
+      await this.getCuentaContable()
+      await this.getBanco()
     },
     stepNext() {
       if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.tipoPago === 0 || this.reintegroItem.Monto === 0 || this.reintegroItem.Beneficiario === '') {
@@ -1435,6 +1471,10 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+    },
+    async getBanco() {
+      const data = await banco.obtenerBancoPais(this.reintegroItem.Pais)
+      this.bancos = data
     },
   },
 }
