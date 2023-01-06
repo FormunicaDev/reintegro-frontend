@@ -126,6 +126,7 @@ import { mdiMagnify, mdiBellOutline, mdiBellRing } from '@mdi/js'
 import VerticalNavMenu from './components/vertical-nav-menu/VerticalNavMenu.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
 import AppBarUserMenu from './components/AppBarUserMenu.vue'
+import paisService from '@/services/country'
 
 export default {
   components: {
@@ -140,6 +141,8 @@ export default {
       isDrawerOpen,
       insert: false,
       alert: true,
+      Pais: [],
+      dataCountry: [],
 
       // Icons
       icons: {
@@ -157,13 +160,17 @@ export default {
     }
   },
   mounted() {
+    this.getCountry()
     this.notification()
+  },
+  created() {
+    this.getCountry()
   },
   methods: {
     notification() {
       const role = sessionStorage.getItem('roleRei')
       this.status = this.getStatus(role)
-      axios.get(`/api/reintegro?status=${this.status}`).then(response => {
+      axios.get(`/api/reintegro?status=${this.status}&option=2&perPage=1000&Pais=${this.Pais}`).then(response => {
         this.items = response.data.data
         this.cantidad = this.items.length
       }).catch(error => {
@@ -175,6 +182,12 @@ export default {
       if (role === '1501') return '1'
 
       return '1'
+    },
+    async getCountry() {
+      const data = await paisService.country()
+      this.dataCountry = data
+      this.Pais = []
+      this.Pais.push(this.dataCountry[0].IdPais)
     },
   },
 }

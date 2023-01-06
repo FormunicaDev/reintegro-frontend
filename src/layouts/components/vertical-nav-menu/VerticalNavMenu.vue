@@ -51,7 +51,7 @@
         :icon="icons.mdiCashRefund"
       ></nav-menu-link>
       <nav-menu-link
-        v-if="access.solicitudes"
+        v-if="accessProp"
         title="Solicitudes"
         :to="{ name: 'solicitudes' }"
         :icon="icons.mdiCashCheck"
@@ -88,6 +88,10 @@ export default {
     isDrawerOpen: {
       type: Boolean,
       default: null,
+    },
+    accessProp: {
+      type: Boolean,
+      default: true,
     },
   },
   setup() {

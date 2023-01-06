@@ -1101,7 +1101,7 @@ export default {
     },
     async putStatusSolicitud() {
       this.loadChangeStatus = true
-      const data = await solicitudService.updateReintegro(this.idSolicitud, this.status)
+      const data = await solicitudService.updateReintegro(this.idSolicitud, this.status, this.Pais)
 
       this.snackbar = true
       // eslint-disable-next-line no-multi-assign, no-param-reassign
@@ -1111,21 +1111,6 @@ export default {
       this.loadChangeStatus = false
       this.pagination()
       this.showAlert()
-
-      /* axios.put(`/api/reintegroStatus/${this.idSolicitud}`, { status: this.status }).then(response => {
-        this.snackbar = true
-        // eslint-disable-next-line no-multi-assign, no-param-reassign
-        this.asiento = response.data.asiento === 'undefined' || response.data.asiento == null ? '' : response.data.asiento[0].asiento
-        this.text = `${response.data.mensaje}`
-        this.dialogStatus = false
-        this.loadChangeStatus = false
-        this.pagination()
-        this.showAlert()
-      }).catch(error => {
-        this.snackbar = true
-        console.log(error)
-        this.loadChangeStatus = false
-      }) */
     },
     showAlert() {
       if (this.status === '7' || this.status === 'CON') {

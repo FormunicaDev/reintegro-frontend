@@ -40,6 +40,10 @@ export default {
   },
   setup() {
     return {
+      access: {
+        solicitudes: false,
+        reintegro: false,
+      },
     }
   },
   created() {
