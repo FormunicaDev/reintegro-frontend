@@ -73,7 +73,10 @@
       <v-divider class="my-2"></v-divider>
 
       <!-- Profile -->
-      <v-list-item link>
+      <v-list-item
+        v-if="access"
+        link
+      >
         <v-list-item-icon class="me-2">
           <v-icon
             size="22"
@@ -138,11 +141,13 @@ export default {
       },
       usuario: '',
       roleRei: '',
+      access: false,
     }
   },
   created() {
     this.usuario = sessionStorage.getItem('userRei')
     this.roleRei = sessionStorage.getItem('roleRei')
+    this.access = this.roleRei === '1500' ? true : false
   },
   methods: {
     cerrarSesion() {
