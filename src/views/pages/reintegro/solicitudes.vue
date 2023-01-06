@@ -550,6 +550,7 @@
               {{ icons.mdiClipboardList }}
             </v-icon>
             <v-menu
+              v-if="access.aprobacion"
               offset-y
               class="rounded-xl"
             >
@@ -765,6 +766,11 @@ export default {
     modal: false,
     singleExpand: true,
     expanded: [],
+    access: {
+      solicitudes: false,
+      reintegro: false,
+      aprobacion: false,
+    },
   }),
 
   computed: {
@@ -784,6 +790,7 @@ export default {
   },
 
   async created() {
+    await this.getPermisos()
     await this.getCountry()
     await this.getPermisos()
     await this.getReintegro()
@@ -791,6 +798,19 @@ export default {
   },
 
   methods: {
+    acceso() {
+      const acciones = actions.enumActions()
+      // eslint-disable-next-line eqeqeq
+      const res = this.permisos.find(element => element.IDACCION == acciones.VISUALIZAR_SOLICITUDES)
+      // eslint-disable-next-line eqeqeq
+      const aprove = this.permisos.find(e => e.IDACCION == acciones.ATENDER_SOLICITUD)
+      const usuario = res.USUARIO
+      console.log(aprove)
+      if (usuario === '') {
+        this.$router.push('/dashboard')
+      }
+      this.access.aprobacion = aprove.IDACCION !== ''
+    },
     deleteItem(item) {
       if (this.role === 1501 || this.role === 1500) {
         this.idSolicitud = item.IdSolicitud
@@ -1038,6 +1058,7 @@ export default {
       await axios.get(`/api/permisos/${user}?role=${role}`).then(response => {
         this.permisos = response.data.data
         this.comprobarLogin()
+        this.acceso()
       }).catch(error => {
         console.log(error)
       })

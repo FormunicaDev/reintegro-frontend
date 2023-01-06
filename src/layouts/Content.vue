@@ -165,6 +165,7 @@ export default {
   },
   created() {
     this.getCountry()
+    this.notification()
   },
   methods: {
     notification() {

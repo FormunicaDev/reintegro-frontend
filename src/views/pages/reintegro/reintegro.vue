@@ -310,6 +310,7 @@
                                     inset
                                     color="info"
                                     :label="`¿Es prorrateo?: ${switch1 === true ? 'Si':'No'}`"
+                                    @change="items = []"
                                   ></v-switch>
                                 </v-col>
                               </v-row>
@@ -518,6 +519,13 @@
                                         @click="selectLinea(item)"
                                       >
                                         {{ icons.mdiPencil }}
+                                      </v-icon>
+                                      <v-icon
+                                        v-if="!switch1"
+                                        medium
+                                        @click="removeLinea(item)"
+                                      >
+                                        {{ icons.mdiDelete }}
                                       </v-icon>
                                     </template>
                                   </v-data-table>
@@ -1017,6 +1025,7 @@ export default {
     linea: 0,
     ceco: 0,
     loadCeCo: false,
+    montoSuma: 0,
   }),
 
   computed: {
@@ -1299,6 +1308,16 @@ export default {
       }
     },
     addLinea() {
+      const { Monto } = this.reintegroItem // monto que no debe exceder
+      this.montoSuma += parseInt(this.itemsLinea.monto, 10)
+      console.log(this.montoSuma)
+      if (this.montoSuma > Monto) {
+        this.snackbar = true
+        this.text = 'La suma de las lineas supera al monto establecido'
+        this.montoSuma -= parseInt(this.itemsLinea.monto, 10)
+
+        return
+      }
       this.linea += 1
       this.itemsLinea.fechaFactura = this.date
       const data = {
@@ -1440,6 +1459,17 @@ export default {
         this.text = error
         this.loadDelete = false
       })
+    },
+    removeLinea(index) {
+      console.log('valor 1: ')
+      console.log(index.IdLinea)
+      console.log('Valor 2:')
+
+      const indice = this.items.indexOf(index)
+      const { decMontoPro } = this.items.find(e => e.IdLinea === index.IdLinea)
+      this.montoSuma -= decMontoPro
+
+      this.items.splice(indice, 1)
     },
     putDetalleSolicitud() {
       if (this.role === 1501 || this.role === 1500) {
