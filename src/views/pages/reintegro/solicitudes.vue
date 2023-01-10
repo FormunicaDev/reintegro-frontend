@@ -855,10 +855,10 @@ export default {
       await this.getStatus()
 
       // await this.getCountry()
-
+      const user = sessionStorage.getItem('userRei')
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
       setTimeout(async () => {
-        const data = await solicitudService.reintegro(this.role, this.Pais)
+        const data = await solicitudService.reintegro(this.role, this.Pais, user)
         if (data.data === null) {
           this.snackbar = true
           this.overlay = false

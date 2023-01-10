@@ -2,10 +2,10 @@ import axios from 'axios'
 import validateToken from './validateToken'
 
 export default {
-  async reintegro(role, pais) {
+  async reintegro(role, pais, user) {
     let data = []
     const perPage = 10
-    await axios.get(`/api/reintegrobyrol?perPage=${perPage}&IdRole=${role}&Pais=${pais}&option=1`).then(res => {
+    await axios.get(`/api/reintegrobyrol?perPage=${perPage}&IdRole=${role}&Pais=${pais}&option=1&user=${user}`).then(res => {
       data = res.data
     }).catch(error => {
       data = error

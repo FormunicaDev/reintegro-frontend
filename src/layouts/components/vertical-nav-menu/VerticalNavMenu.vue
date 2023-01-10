@@ -75,6 +75,7 @@ import {
   mdiCashCheck,
 } from '@mdi/js'
 import axios from 'axios'
+import { mapGetters } from 'vuex'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuLink from './components/NavMenuLink.vue'
 import actions from '@/services/action'
@@ -114,6 +115,12 @@ export default {
       },
       permisos: [],
     }
+  },
+  computed: {
+    ...mapGetters(['prop']),
+    accesSolititudes() {
+      return this.prop
+    },
   },
   mounted() {
     this.getPermisos()

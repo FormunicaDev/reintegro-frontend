@@ -92,7 +92,10 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-divider class="my-2"></v-divider>
+      <v-divider
+        v-if="access"
+        class="my-2"
+      ></v-divider>
 
       <!-- Logout -->
       <v-list-item link>
@@ -147,7 +150,7 @@ export default {
   created() {
     this.usuario = sessionStorage.getItem('userRei')
     this.roleRei = sessionStorage.getItem('roleRei')
-    this.access = this.roleRei === '1500' ? true : false
+    this.access = this.roleRei === '1500'
   },
   methods: {
     cerrarSesion() {

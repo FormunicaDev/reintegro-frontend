@@ -24,6 +24,7 @@
 <script>
 // eslint-disable-next-line object-curly-newline
 import axios from 'axios'
+import { mapActions } from 'vuex'
 import validateLogin from '@/services/validateLogin'
 import actions from '@/services/action'
 
@@ -48,11 +49,22 @@ export default {
   },
   created() {
     this.getPermisos()
+    this.sendProps()
   },
   mounted() {
     this.setTheme()
   },
   methods: {
+    ...mapActions(['updateProp']),
+    validarPermisos() {
+      const acciones = actions.enumActions()
+      // eslint-disable-next-line eqeqeq
+      const res = this.permisos.find(element => element.IDACCION == acciones.VISUALIZAR_SOLICITUDES)
+      const usuario = res.USUARIO
+      if (usuario !== '') {
+        this.access.solicitudes = true
+      }
+    },
     comprobarLogin() {
       const acciones = actions.enumActions()
       // eslint-disable-next-line eqeqeq
@@ -72,6 +84,7 @@ export default {
       await axios.get(`/api/permisos/${user}?role=${role}`).then(response => {
         this.permisos = response.data.data
         this.comprobarLogin()
+        this.validarPermisos()
       }).catch(error => {
         console.log(error)
       })
@@ -91,6 +104,9 @@ export default {
           }
         }, 2000)
       }
+    },
+    sendProps() {
+      this.updateProp({ prop: this.access.solicitudes })
     },
   },
 }
