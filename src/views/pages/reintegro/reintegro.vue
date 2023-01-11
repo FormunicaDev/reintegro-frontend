@@ -24,8 +24,7 @@
       <template v-slot:top>
         <v-snackbar
           v-model="snackbar"
-          color="success"
-          outlined
+          color="info"
           rounded="pill"
         >
           {{ text }}
@@ -242,8 +241,22 @@
                                     item-value="IdBanco"
                                     outlined
                                     dense
+                                    chips
                                   >
                                   </v-autocomplete>
+                                </v-col>
+                                <v-col
+                                  cols="12"
+                                  md="2"
+                                  sm="2"
+                                >
+                                  <v-text-field
+                                    v-model="reintegroItem.Concepto"
+                                    label="Concepto"
+                                    outlined
+                                    dense
+                                  >
+                                  </v-text-field>
                                 </v-col>
                                 <v-col
                                   cols="12"
@@ -310,7 +323,6 @@
                                     inset
                                     color="info"
                                     :label="`¿Es prorrateo?: ${switch1 === true ? 'Si':'No'}`"
-                                    @change="items = []"
                                   ></v-switch>
                                 </v-col>
                               </v-row>
@@ -329,7 +341,7 @@
                                     chips
                                     clearable
                                     small-chips
-                                    label="Concepto"
+                                    label="Descripción"
                                     item-text="strDescripcion"
                                     item-value="IdConcepto"
                                     @input="getProrrateo()"
@@ -343,16 +355,50 @@
                                 >
                                   <v-text-field
                                     v-model="itemsLinea.concepto"
-                                    label="Concepto"
+                                    label="Descripción"
                                     outlined
                                     dense
+                                    :disabled="boolViatico"
                                   >
                                   </v-text-field>
                                 </v-col>
                                 <v-col
+                                  v-if="!switch1 & boolViatico"
+                                  cols="12"
+                                  md="5"
+                                  sm="6"
+                                >
+                                  <v-radio-group
+                                    v-model="itemsLinea.concepto"
+                                    row
+                                    @change="changeViatico()"
+                                  >
+                                    <v-radio
+                                      label="Desayuno"
+                                      value="Desayuno"
+                                    ></v-radio>
+                                    <v-radio
+                                      label="Almuerzo"
+                                      value="Almuerzo"
+                                    ></v-radio>
+                                    <v-radio
+                                      label="Cena"
+                                      value="Cena"
+                                    ></v-radio>
+                                    <v-radio
+                                      label="Hospedaje"
+                                      value="Hospedaje"
+                                    ></v-radio>
+                                    <v-radio
+                                      label="Transporte"
+                                      value="Transporte"
+                                    ></v-radio>
+                                  </v-radio-group>
+                                </v-col>
+                                <v-col
                                   cols="12"
                                   sm="6"
-                                  md="3"
+                                  md="2"
                                 >
                                   <v-autocomplete
                                     v-model="itemsLinea.cuentaContable"
@@ -362,13 +408,14 @@
                                     :items="dataCuentaContable"
                                     item-text="Descripcion"
                                     item-value="CuentaContable"
+                                    @input="changeCuentaContable()"
                                   >
                                   </v-autocomplete>
                                 </v-col>
                                 <v-col
                                   cols="12"
                                   sm="6"
-                                  md="2"
+                                  md="1"
                                 >
                                   <v-text-field
                                     v-model="itemsLinea.numFactura"
@@ -381,7 +428,7 @@
                                 <v-col
                                   cols="12"
                                   sm="6"
-                                  md="2"
+                                  md="1"
                                 >
                                   <v-text-field
                                     v-model="itemsLinea.monto"
@@ -389,6 +436,7 @@
                                     dense
                                     label="Monto"
                                     type="number"
+                                    :disabled="boolMonto"
                                   >
                                   </v-text-field>
                                 </v-col>
@@ -407,8 +455,8 @@
                                 </v-col>
                                 <v-col
                                   cols="12"
-                                  sm="6"
-                                  md="4"
+                                  sm="4"
+                                  md="2"
                                 >
                                   <v-menu
                                     ref="menu"
@@ -521,7 +569,6 @@
                                         {{ icons.mdiPencil }}
                                       </v-icon>
                                       <v-icon
-                                        v-if="!switch1"
                                         medium
                                         @click="removeLinea(item)"
                                       >
@@ -867,6 +914,7 @@ import validateLogin from '@/services/validateLogin'
 import validateToken from '@/services/validateToken'
 import actions from '@/services/action'
 import cuentaContableService from '@/services/cuentaContable'
+import centroCostoService from '@/services/centroCosto'
 import banco from '@/services/banco'
 
 export default {
@@ -896,6 +944,8 @@ export default {
     loadingData: false,
     loadingProrrateo: false,
     switch1: false,
+    boolViatico: false,
+    boolMonto: false,
     loadDelete: false,
     row: null,
     text: '',
@@ -986,7 +1036,7 @@ export default {
       Asiento: null,
       Pais: 0,
       Comentarios: '',
-      Banco: 0,
+      Banco: '2',
       items: [],
     },
     items: [],
@@ -1176,13 +1226,10 @@ export default {
     async getCentroCosto() {
       await this.getBanco()
       this.loadCeCo = true
-      axios.get(`/api/centrocosto?perPage=${100}&pais=${this.reintegroItem.Pais}`).then(response => {
-        this.centroCosto = response.data.data
-        this.loadCeCo = false
-      }).catch(error => {
-        console.log(error)
-        this.loadCeCo = false
-      })
+      const user = sessionStorage.getItem('userRei')
+      const data = await centroCostoService.listarCentroCostoUser(user)
+      this.centroCosto = data.data
+      this.loadCeCo = false
     },
     getTipoPago() {
       axios.get(`/api/tipopago?perPage=${100}`).then(response => {
@@ -1215,6 +1262,10 @@ export default {
     postReintegro() {
       this.reintegroItem.USUARIO = sessionStorage.getItem('userRei')
       this.reintegroItem.USUARIO1 = sessionStorage.getItem('userRei')
+      const montoTotal = this.sumMontosLinea()
+      this.reintegroItem.Monto = montoTotal
+      console.log(this.reintegroItem.Monto)
+
       if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.CENTRO_COSTO === null) {
         this.snackbar = true
         this.text = 'Favor Seleccionar un centro de costo'
@@ -1307,18 +1358,49 @@ export default {
         this.step += 1
       }
     },
+    maxlinea() {
+      // eslint-disable-next-line radix
+      const linea = this.items.reduce((max, obj) => Math.max(max, parseInt(obj.IdLinea)), -Infinity)
+
+      return linea
+    },
+    sumMontosLinea() {
+      const totalMonto = this.items.reduce((acc, obj) => acc + parseFloat(obj.decMontoPro), 0)
+
+      return totalMonto
+    },
     addLinea() {
       const { Monto } = this.reintegroItem // monto que no debe exceder
+      let linea = this.maxlinea()
+      let nuevoMonto = 0
+      // eslint-disable-next-line radix
+      linea = parseInt(linea) > 0 ? linea + 1 : 1
       this.montoSuma += parseInt(this.itemsLinea.monto, 10)
-      console.log(this.montoSuma)
-      if (this.montoSuma > Monto) {
+
+      // console.log(this.montoSuma)
+      /* if (this.montoSuma > Monto) {
         this.snackbar = true
-        this.text = 'La suma de las lineas supera al monto establecido'
+        this.text = 'La suma de las lineas supera al monto establecido, se sumara el valor agregado'
         this.montoSuma -= parseInt(this.itemsLinea.monto, 10)
+        this.reintegroItem.Monto += parseInt(this.itemsLinea.monto, 10)
+
+        return
+      } */
+      const { numFactura, establecimiento } = this.itemsLinea
+      if (numFactura === 0 || numFactura === '') {
+        this.snackbar = true
+        this.text = 'Favor ingrese un numero de factura'
+
+        return
+      } if (establecimiento === '') {
+        this.snackbar = true
+        this.text = 'Favor ingrese el nombre del establecimiento'
 
         return
       }
-      this.linea += 1
+      nuevoMonto = parseInt(Monto, 10) + parseInt(this.itemsLinea.monto, 10)
+      this.reintegroItem.Monto = nuevoMonto
+      this.linea = linea
       this.itemsLinea.fechaFactura = this.date
       const data = {
         strDescripcionConcepto: this.itemsLinea.concepto,
@@ -1331,6 +1413,8 @@ export default {
         IdLinea: this.linea,
       }
       this.items.push(data)
+      this.snackbar = true
+      this.text = 'Se agrego una nueva linea'
       console.log(this.reintegroItem)
     },
 
@@ -1505,6 +1589,30 @@ export default {
     async getBanco() {
       const data = await banco.obtenerBancoPais(this.reintegroItem.Pais)
       this.bancos = data
+      this.reintegroItem.banco = '2'
+    },
+    changeCuentaContable() {
+      const { cuentaContable } = this.itemsLinea
+
+      this.boolViatico = cuentaContable === '5-02-01-001-005'
+    },
+    changeViatico() {
+      const { concepto } = this.itemsLinea
+      if (concepto === 'Desayuno') this.itemsLinea.monto = 100
+      if (concepto === 'Almuerzo') this.itemsLinea.monto = 150
+      if (concepto === 'Cena') this.itemsLinea.monto = 120
+      if (concepto === 'Hospedaje') this.itemsLinea.monto = 0
+      if (concepto === 'Transporte') this.itemsLinea.monto = 120
+
+      this.lockMonto()
+    },
+    lockMonto() {
+      const { concepto } = this.itemsLinea
+      if (concepto === 'Desayuno') this.boolMonto = true
+      if (concepto === 'Almuerzo') this.boolMonto = true
+      if (concepto === 'Cena') this.boolMonto = true
+      if (concepto === 'Hospedaje') this.boolMonto = false
+      if (concepto === 'Transporte') this.boolMonto = false
     },
   },
 }

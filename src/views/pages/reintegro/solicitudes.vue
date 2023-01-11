@@ -405,6 +405,19 @@
                         </v-col>
                         <v-col
                           cols="12"
+                          sm="6"
+                          md="2"
+                        >
+                          <v-text-field
+                            v-model="itemsDetail.monto"
+                            outlined
+                            dense
+                            label="Monto"
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col
+                          cols="12"
                           md="6"
                           sm="2"
                         >
@@ -456,7 +469,7 @@
                       Cerrar
                     </v-btn>
                     <v-btn
-                      v-if="role === 1501? true:false"
+                      v-if="role === '1501' || role === '1500'? true:false"
                       :disabled="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? false:true"
                       color="primary"
                       @click="putDetalleSolicitud()"
@@ -755,6 +768,7 @@ export default {
       concepto: '',
       establecimiento: '',
       numFactura: '',
+      monto: 0,
     },
     asiento: '',
     beneficiario: '',
@@ -770,6 +784,9 @@ export default {
       solicitudes: false,
       reintegro: false,
       aprobacion: false,
+    },
+    data: {
+      items: [],
     },
   }),
 
@@ -902,7 +919,8 @@ export default {
     },
     async getReintegroPaginationFechas() {
       this.overlay = true
-      const data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2, this.page)
+      const user = sessionStorage.getItem('userRei')
+      const data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2, this.page, user)
       if (data.data === null) {
         this.snackbar = true
         this.text = 'No existen registros en la base de datos'
@@ -917,7 +935,8 @@ export default {
     },
     async getReintegroPaginationBeneficiario() {
       this.overlay = true
-      const data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais, this.page)
+      const user = sessionStorage.getItem('userRei')
+      const data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais, this.page, user)
       if (data.data === null) {
         this.snackbar = true
         this.text = 'No existen registros en la base de datos'
@@ -933,7 +952,8 @@ export default {
     async getReintegroPagination() {
       this.overlay = true
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      const data = await solicitudService.reintegroPagination(this.perPage, this.page, this.role, this.Pais)
+      const user = sessionStorage.getItem('userRei')
+      const data = await solicitudService.reintegroPagination(this.perPage, this.page, this.role, this.Pais, user)
       if (data.data === null) {
         this.snackbar = true
         this.text = 'No existen registros en la base de datos'
@@ -951,7 +971,8 @@ export default {
       this.overlay = true
       this.statusCodeSol = item.nameStatus
       axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
-      const data = await solicitudService.reintegroPaginationStatus(this.perPage, this.statusCodeSol, this.role, this.Pais, this.page)
+      const user = sessionStorage.getItem('userRei')
+      const data = await solicitudService.reintegroPaginationStatus(this.perPage, this.statusCodeSol, this.role, this.Pais, this.page, user)
       if (data.data === null) {
         this.snackbar = true
         this.text = 'No existen registros en la base de datos'
@@ -971,8 +992,8 @@ export default {
         this.text = 'Favor ingrese un numero de solicitud'
       } else {
         this.overlay = true
-
-        const data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais)
+        const user = sessionStorage.getItem('userRei')
+        const data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais, user)
 
         this.totalPagina = data.last_page
         this.totalRegistros = data.total
@@ -1142,7 +1163,7 @@ export default {
       }
     },
     selectDetails(item) {
-      if (this.role === 1501 || this.role === 1500) {
+      if (this.role === '1501' || this.role === '1500') {
         this.itemsDetail.concepto = item.Concepto
         this.itemsDetail.cuentaContable = item.Cuenta_Contable
         this.itemsDetail.numFactura = item.NumeroFactura
@@ -1151,13 +1172,14 @@ export default {
         this.itemsDetail.fechaFactura = item.FechaFactura
         this.itemsDetail.Linea = item.Linea
         this.itemsDetail.centroCosto = item.CENTRO_COSTO
+        this.itemsDetail.monto = item.Monto
       } else {
         this.snackbar = true
         this.text = 'No posee los permisos para realizar esta acción'
       }
     },
     editLineasDetalles() {
-      if (this.role === 1501 || this.role === 1500) {
+      if (this.role === '1501' || this.role === '1500') {
         if (this.itemsDetail.Linea !== '') {
           const index = this.dataDetalleReintegro.findIndex((obj => obj.Linea === this.itemsDetail.Linea))
           this.dataDetalleReintegro[index].CENTRO_COSTO = this.itemsDetail.centroCosto
@@ -1165,6 +1187,7 @@ export default {
           this.dataDetalleReintegro[index].Concepto = this.itemsDetail.concepto
           this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
           this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
+          this.dataDetalleReintegro[index].Monto = this.itemsDetail.monto
         } else {
         // eslint-disable-next-line no-plusplus
           for (let index = 0; index < this.dataDetalleReintegro.length; index++) {
@@ -1173,6 +1196,7 @@ export default {
             this.dataDetalleReintegro[index].Concepto = this.itemsDetail.concepto
             this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
             this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
+            this.dataDetalleReintegro[index].Monto = this.itemsDetail.monto
           }
         }
       } else {

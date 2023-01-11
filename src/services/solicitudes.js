@@ -13,9 +13,9 @@ export default {
 
     return data
   },
-  async reintegroByBeneficiario(beneficiario, pais, page) {
+  async reintegroByBeneficiario(beneficiario, pais, page, user) {
     let data = []
-    await axios.get(`/api/reintegrobybeneficiario?Pais=${pais}&beneficiario=${beneficiario}&page=${page}&option=3`).then(response => {
+    await axios.get(`/api/reintegrobybeneficiario?Pais=${pais}&beneficiario=${beneficiario}&page=${page}&option=3&user=${user}`).then(response => {
       data = response.data
     }).catch(error => {
       data = error
@@ -23,9 +23,9 @@ export default {
 
     return data
   },
-  async reintegroByFechas(Pais, inicio, fin, page) {
+  async reintegroByFechas(Pais, inicio, fin, page, user) {
     let data = []
-    await axios.get(`/api/reintegrobyfechas?Pais=${Pais}&fechaInicio=${inicio}&fechaFin=${fin}&page=${page}&option=4`).then(res => {
+    await axios.get(`/api/reintegrobyfechas?Pais=${Pais}&fechaInicio=${inicio}&fechaFin=${fin}&page=${page}&option=4&user=${user}`).then(res => {
       data = res.data
     }).catch(error => {
       data = error
@@ -33,9 +33,9 @@ export default {
 
     return data
   },
-  async reintegroByStatus(status, pais) {
+  async reintegroByStatus(status, pais, user) {
     let data = []
-    await axios.get(`/api/reintegro?status=${status}&Pais=${pais}&option=2`).then(res => {
+    await axios.get(`/api/reintegro?status=${status}&Pais=${pais}&option=2&user=${user}`).then(res => {
       data = res.data
     }).catch(error => {
       data = error
@@ -43,9 +43,9 @@ export default {
 
     return data
   },
-  async reintegroById(id, role, pais) {
+  async reintegroById(id, role, pais, user) {
     let data = []
-    await axios.get(`/api/reintegro/${id}?IdRole=${role}&Pais=${pais}&option=5`).then(res => {
+    await axios.get(`/api/reintegro/${id}?IdRole=${role}&Pais=${pais}&option=5&user=${user}`).then(res => {
       data = res.data
     }).catch(error => {
       data = error
@@ -64,9 +64,9 @@ export default {
 
     return data
   },
-  async reintegroPagination(perPage, page, role, pais) {
+  async reintegroPagination(perPage, page, role, pais, user) {
     let data = []
-    await axios.get(`/api/reintegrobyrol?perPage=${perPage}&page=${page}&IdRole=${role}&Pais=${pais}&option=1`).then(res => {
+    await axios.get(`/api/reintegrobyrol?perPage=${perPage}&page=${page}&IdRole=${role}&Pais=${pais}&option=1&user=${user}`).then(res => {
       data = res.data
     }).catch(err => {
       if (err.response.data.mensaje === 'invalid') {
@@ -77,9 +77,9 @@ export default {
 
     return data
   },
-  async reintegroPaginationStatus(perPage, statusCodeSol, role, Pais, page) {
+  async reintegroPaginationStatus(perPage, statusCodeSol, role, Pais, page, user) {
     let data = []
-    await axios.get(`/api/reintegro?perPage=${perPage}&status=${statusCodeSol}&IdRole=${role}&Pais=${Pais}&page=${page}&option=2`).then(res => {
+    await axios.get(`/api/reintegro?perPage=${perPage}&status=${statusCodeSol}&IdRole=${role}&Pais=${Pais}&page=${page}&option=2&user=${user}`).then(res => {
       data = res.data
     })
 

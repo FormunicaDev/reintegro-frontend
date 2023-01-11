@@ -249,7 +249,8 @@ export default {
       this.dataUsers = await users.listarUsuario()
     },
     async getCentroCosto() {
-      this.dataCentroCosto = await centroCostoService.listarCentroCostos()
+      const country = sessionStorage.getItem('countryUser')
+      this.dataCentroCosto = await centroCostoService.listarCentroCostos(country)
     },
     async postRelacionCentroUser() {
       if (this.validateData) {

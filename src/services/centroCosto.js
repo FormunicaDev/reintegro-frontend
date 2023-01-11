@@ -7,18 +7,26 @@ export default {
   anularRelacionCentroUser() {
 
   },
-  async listarCentroCostos() {
+  async centroCosto(perPage, pais) {
     let data = []
-
-    await axios.get('/api/centrocostorei').then(res => {
+    axios.get(`/api/centrocosto?perPage=${perPage}&pais=${pais}`).then(res => {
       data = res.data
     })
 
     return data
   },
-  async listarCentroCostoUser() {
+  async listarCentroCostos(country) {
     let data = []
-    await axios.get('/api/centrocostouser').then(res => {
+
+    await axios.get(`/api/centrocostorei?Pais=${country}`).then(res => {
+      data = res.data
+    })
+
+    return data
+  },
+  async listarCentroCostoUser(user) {
+    let data = []
+    await axios.get(`/api/centrocostouser?user=${user}`).then(res => {
       data = res.data
     })
 
