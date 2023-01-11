@@ -1227,7 +1227,7 @@ export default {
       await this.getBanco()
       this.loadCeCo = true
       const user = sessionStorage.getItem('userRei')
-      const data = await centroCostoService.listarCentroCostoUser(user)
+      const data = await centroCostoService.listarCentroCostoUser(user, undefined, 1000)
       this.centroCosto = data.data
       this.loadCeCo = false
     },
@@ -1575,7 +1575,8 @@ export default {
     },
     printReintegro(item) {
       const { IdSolicitud } = item
-      window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}`, '_blank')
+      const user = sessionStorage.getItem('userRei')
+      window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
     },
     getCountry() {
       const user = sessionStorage.getItem('userRei')

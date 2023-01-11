@@ -24,17 +24,17 @@ export default {
 
     return data
   },
-  async listarCentroCostoUser(user) {
+  async listarCentroCostoUser(user, role, perPage) {
     let data = []
-    await axios.get(`/api/centrocostouser?user=${user}`).then(res => {
+    await axios.get(`/api/centrocostouser?user=${user}&role=${role}&perPage=${perPage}`).then(res => {
       data = res.data
     })
 
     return data
   },
-  async listarCentroCostoUserPagination(perPage, page) {
+  async listarCentroCostoUserPagination(perPage, page, user, role) {
     let data = []
-    await axios.get(`/api/centrocostouser?perPage=${perPage}&page=${page}`).then(res => {
+    await axios.get(`/api/centrocostouser?perPage=${perPage}&page=${page}&user=${user}&role=${role}`).then(res => {
       data = res.data
     })
 

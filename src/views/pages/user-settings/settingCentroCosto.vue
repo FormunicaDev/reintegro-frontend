@@ -199,7 +199,9 @@ export default {
   },
   methods: {
     async getCentroCostoUser() {
-      const data = await centroCostoService.listarCentroCostoUser()
+      const user = sessionStorage.getItem('userRei')
+      const role = sessionStorage.getItem('roleRei')
+      const data = await centroCostoService.listarCentroCostoUser(user, role, 10)
       this.dataCentroUser = data.data
       this.totalRegistros = data.total
       this.totalPagina = data.last_page
@@ -262,7 +264,9 @@ export default {
       }
     },
     async getCentroCostoPagination() {
-      const data = await centroCostoService.listarCentroCostoUserPagination(this.perPage, this.page)
+      const user = sessionStorage.getItem('userRei')
+      const role = sessionStorage.getItem('roleRei')
+      const data = await centroCostoService.listarCentroCostoUserPagination(this.perPage, this.page, user, role)
       this.dataCentroUser = data.data
       this.page = data.current_page
       this.totalPagina = data.last_page

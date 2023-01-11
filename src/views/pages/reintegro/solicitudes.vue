@@ -1143,7 +1143,8 @@ export default {
     },
     async putStatusSolicitud() {
       this.loadChangeStatus = true
-      const data = await solicitudService.updateReintegro(this.idSolicitud, this.status, this.Pais)
+      const user = sessionStorage.getItem('userRei')
+      const data = await solicitudService.updateReintegro(this.idSolicitud, this.status, this.Pais, user)
 
       this.snackbar = true
       // eslint-disable-next-line no-multi-assign, no-param-reassign

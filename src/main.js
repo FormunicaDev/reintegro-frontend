@@ -8,9 +8,9 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import store from './store'
 
-// axios.defaults.baseURL = 'http://127.0.0.1:8000'
+axios.defaults.baseURL = 'http://127.0.0.1:8000'
 
-axios.defaults.baseURL = 'http://10.10.0.35:8080/apiReintegro/public'
+// axios.defaults.baseURL = 'http://10.10.0.35:8080/apiReintegro/public'
 axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('tknReiFormunica')}`
 
 Vue.config.productionTip = false

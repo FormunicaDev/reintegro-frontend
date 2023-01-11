@@ -46,13 +46,13 @@
       ></nav-menu-link>
       <nav-menu-section-title title="COMPROMETIDOS CON TU COSECHA"></nav-menu-section-title>
       <nav-menu-link
-        title="Reintegro"
+        title="Elaborar Solicitud"
         :to="{ name: 'reintegro' }"
         :icon="icons.mdiCashRefund"
       ></nav-menu-link>
       <nav-menu-link
         v-if="access.solicitudes"
-        title="Solicitudes"
+        title="Estados Solicitud"
         :to="{ name: 'solicitudes' }"
         :icon="icons.mdiCashCheck"
       ></nav-menu-link>

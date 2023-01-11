@@ -53,10 +53,10 @@ export default {
 
     return data
   },
-  async updateReintegro(IdSol, state, pais) {
+  async updateReintegro(IdSol, state, pais, User) {
     let data = []
     const paises = pais.toString()
-    await axios.put(`/api/reintegroStatus/${IdSol}`, { status: state, Pais: paises }).then(res => {
+    await axios.put(`/api/reintegroStatus/${IdSol}`, { status: state, Pais: paises, user: User }).then(res => {
       data = res.data
     }).catch(error => {
       data = error
