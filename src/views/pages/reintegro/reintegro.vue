@@ -252,7 +252,7 @@
                                 >
                                   <v-text-field
                                     v-model="reintegroItem.Concepto"
-                                    label="Concepto"
+                                    label="Concepto *"
                                     outlined
                                     dense
                                   >
@@ -331,7 +331,7 @@
                                   v-if="switch1"
                                   cols="12"
                                   sm="6"
-                                  md="3"
+                                  md="2"
                                 >
                                   <v-autocomplete
                                     v-model="conceptoID"
@@ -351,7 +351,7 @@
                                   v-if="!switch1"
                                   cols="12"
                                   sm="6"
-                                  md="3"
+                                  md="2"
                                 >
                                   <v-text-field
                                     v-model="itemsLinea.concepto"
@@ -394,6 +394,30 @@
                                       value="Transporte"
                                     ></v-radio>
                                   </v-radio-group>
+                                </v-col>
+                                <v-col
+                                  v-if="!switch1 & boolViatico"
+                                  cols="12"
+                                  md="1"
+                                  sm="6"
+                                >
+                                  <v-checkbox
+                                    v-model="checkbox"
+                                    @change="changeViatico()"
+                                  >
+                                    <template v-slot:label>
+                                      <div>
+                                        <v-tooltip bottom>
+                                          <template v-slot:activator="{ on }">
+                                            <label v-on="on">
+                                              ¿Factura?
+                                            </label>
+                                          </template>
+                                          En caso de poseer factura marque esta casilla
+                                        </v-tooltip>
+                                      </div>
+                                    </template>
+                                  </v-checkbox>
                                 </v-col>
                                 <v-col
                                   cols="12"
@@ -947,6 +971,7 @@ export default {
     boolViatico: false,
     boolMonto: false,
     loadDelete: false,
+    checkbox: false,
     row: null,
     text: '',
     color: '',
@@ -1346,7 +1371,7 @@ export default {
       await this.getBanco()
     },
     stepNext() {
-      if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.tipoPago === 0 || this.reintegroItem.Monto === 0 || this.reintegroItem.Beneficiario === '') {
+      if (this.reintegroItem.CENTRO_COSTO === '' || this.reintegroItem.tipoPago === 0 || this.reintegroItem.Monto === 0 || this.reintegroItem.Beneficiario === '' || this.reintegroItem.Concepto === '') {
         this.snackbar = true
         this.text = 'Favor complete todos los campos obligatorios'
         // eslint-disable-next-line no-unneeded-ternary
@@ -1576,7 +1601,9 @@ export default {
     printReintegro(item) {
       const { IdSolicitud } = item
       const user = sessionStorage.getItem('userRei')
-      window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+
+      // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+      window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
     },
     getCountry() {
       const user = sessionStorage.getItem('userRei')
@@ -1593,17 +1620,22 @@ export default {
       this.reintegroItem.banco = '2'
     },
     changeCuentaContable() {
+      this.boolMonto = true
       const { cuentaContable } = this.itemsLinea
 
       this.boolViatico = cuentaContable === '5-02-01-001-005'
     },
     changeViatico() {
       const { concepto } = this.itemsLinea
-      if (concepto === 'Desayuno') this.itemsLinea.monto = 100
-      if (concepto === 'Almuerzo') this.itemsLinea.monto = 150
-      if (concepto === 'Cena') this.itemsLinea.monto = 120
+      this.itemsLinea.numFactura = this.checkbox === false ? 'n/a' : this.itemsLinea.numFactura
+      if (concepto === 'Desayuno' && this.checkbox) this.itemsLinea.monto = 100
+      if (concepto === 'Almuerzo' && this.checkbox) this.itemsLinea.monto = 150
+      if (concepto === 'Cena' && this.checkbox) this.itemsLinea.monto = 120
+      if (concepto === 'Desayuno' && !this.checkbox) this.itemsLinea.monto = 50
+      if (concepto === 'Almuerzo' && !this.checkbox) this.itemsLinea.monto = 100
+      if (concepto === 'Cena' && !this.checkbox) this.itemsLinea.monto = 80
       if (concepto === 'Hospedaje') this.itemsLinea.monto = 0
-      if (concepto === 'Transporte') this.itemsLinea.monto = 120
+      if (concepto === 'Transporte') this.itemsLinea.monto = 0
 
       this.lockMonto()
     },

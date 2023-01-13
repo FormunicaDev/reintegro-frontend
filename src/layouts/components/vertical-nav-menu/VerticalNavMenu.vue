@@ -51,7 +51,6 @@
         :icon="icons.mdiCashRefund"
       ></nav-menu-link>
       <nav-menu-link
-        v-if="access.solicitudes"
         title="Estados Solicitud"
         :to="{ name: 'solicitudes' }"
         :icon="icons.mdiCashCheck"

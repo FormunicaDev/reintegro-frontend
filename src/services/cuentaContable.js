@@ -25,9 +25,9 @@ export default {
 
     return data
   },
-  async listarCuentasContables() {
+  async listarCuentasContables(perPage) {
     let data = []
-    await axios.get('/api/cuentacontable').then(res => {
+    await axios.get(`/api/cuentacontable?perPage=${perPage}`).then(res => {
       data = res.data.data
     })
 

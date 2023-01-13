@@ -1094,22 +1094,23 @@ export default {
       console.log(this.typeSearch)
       this.overlay = true
       const status = this.statusCodeSol
+      const user = sessionStorage.getItem('userRei')
       let data
       switch (this.typeSearch) {
         case '0':
           await this.getReintegro()
           break
         case 1:
-          data = await solicitudService.reintegroByStatus(status, this.Pais)
+          data = await solicitudService.reintegroByStatus(status, this.Pais, user)
           break
         case 2:
-          data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais)
+          data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais, user)
           break
         case 3:
-          data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais)
+          data = await solicitudService.reintegroByBeneficiario(this.beneficiario, this.Pais, user)
           break
         case 4:
-          data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2)
+          data = await solicitudService.reintegroByFechas(this.Pais, this.datePicker, this.datePicker2, user)
           break
         case 5:
           data = await this.getReintegro()

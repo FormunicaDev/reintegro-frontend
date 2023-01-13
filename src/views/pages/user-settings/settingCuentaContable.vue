@@ -309,7 +309,7 @@ export default {
       this.loadDelete = false
     },
     async getCuentaContable() {
-      this.dataCuentaContable = await cuentaContableService.listarCuentasContables()
+      this.dataCuentaContable = await cuentaContableService.listarCuentasContables(1000)
     },
     closeDelete() {
       this.dialogDelete = false
