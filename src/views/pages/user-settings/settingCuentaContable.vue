@@ -186,6 +186,17 @@
           </v-dialog>
         </template>
       </v-data-table>
+      <template>
+        <div class="text-center">
+          <v-pagination
+            v-model="page"
+            :length="totalPagina"
+            circle
+            :total-visible="7"
+            @input="getCuentaContablePagination()"
+          ></v-pagination>
+        </div>
+      </template>
     </v-card-text>
   </v-card>
 </template>
@@ -239,6 +250,9 @@ export default {
     },
     btnUpdate: false,
     message: '',
+    page: 0,
+    totalPagina: 0,
+    totalRegistros: 0,
   }),
   created() {
     this.getRelacionCuentaUser()
@@ -258,7 +272,18 @@ export default {
       }
     },
     async getRelacionCuentaUser() {
-      this.dataCuentasUser = await cuentaContableService.getRelacionCuentaUser(10)
+      const data = await cuentaContableService.getRelacionCuentaUser(10)
+      this.dataCuentasUser = data.data
+      this.totalRegistros = data.total
+      this.totalPagina = data.last_page
+      this.page = data.current_page
+    },
+    async getCuentaContablePagination() {
+      const data = await cuentaContableService.getRelacionCuentaUser(10, this.page)
+      this.dataCuentasUser = data.data
+      this.totalRegistros = data.total
+      this.totalPagina = data.last_page
+      this.page = data.current_page
     },
     async postRelacionCuentaUser() {
       if (this.validateData) {

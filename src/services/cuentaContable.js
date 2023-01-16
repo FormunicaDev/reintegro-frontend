@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 export default {
-  async getRelacionCuentaUser(perPage) {
+  async getRelacionCuentaUser(perPage, page) {
     let data = []
-    await axios.get(`/api/cuentacontableuser?perPage=${perPage}`).then(res => {
-      data = res.data.data
+    await axios.get(`/api/cuentacontableuser?perPage=${perPage}&page=${page}`).then(res => {
+      data = res.data
     })
 
     return data
