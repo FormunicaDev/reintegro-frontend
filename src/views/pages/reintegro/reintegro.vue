@@ -255,6 +255,8 @@
                                     label="Concepto *"
                                     outlined
                                     dense
+                                    counter
+                                    maxlength="60"
                                   >
                                   </v-text-field>
                                 </v-col>
@@ -844,6 +846,12 @@
                     >
                       Guardar Cambios
                     </v-btn>
+                    <v-btn
+                      color="secondary"
+                      @click="print()"
+                    >
+                      Imprimir
+                    </v-btn>
                   </v-card-actions>
                 </v-card>
               </template>
@@ -1273,7 +1281,7 @@ export default {
     getProrrateo() {
       this.loadingProrrateo = true
       this.items = []
-      axios.get(`/api/prorrateo?concepto=${this.conceptoID}&monto=${this.reintegroItem.Monto}`).then(response => {
+      axios.get(`/api/prorrateo?concepto=${this.conceptoID}&monto=${this.reintegroItem.Monto}&pais=${this.reintegroItem.Pais}`).then(response => {
         this.items = response.data
         this.loadingProrrateo = false
         // eslint-disable-next-line no-unneeded-ternary
@@ -1310,6 +1318,7 @@ export default {
         this.destructObject()
 
         // console.log(this.reintegroItem)
+        const user = sessionStorage.getItem('userRei')
 
         this.dialogLoad = true
         axios.post('/api/reintegro', this.reintegroItem).then(response => {
@@ -1317,7 +1326,9 @@ export default {
           this.text = `${response.data.mensaje}- Numero de Solicitud: ${response.data.Solicitud}`
           this.getReintegro()
           this.limpiarCampos()
+          window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${response.data.Solicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
           this.dialogLoad = false
+          this.dialog = false
         }).catch(error => {
           this.snackbar = true
           this.text = error
@@ -1360,7 +1371,9 @@ export default {
     },
     async getCuentaContable() {
       const perPage = 100
-      this.dataCuentaContable = await cuentaContableService.getRelacionCuentaUser(perPage)
+      const page = 1
+      const data = await cuentaContableService.getRelacionCuentaUser(perPage, page)
+      this.dataCuentaContable = data.data
     },
     async nuevo() {
       await this.getCentroCosto()
@@ -1601,6 +1614,14 @@ export default {
     printReintegro(item) {
       const { IdSolicitud } = item
       const user = sessionStorage.getItem('userRei')
+
+      // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+
+      window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+    },
+    print() {
+      const user = sessionStorage.getItem('userRei')
+      const IdSolicitud = this.idSolicitud
 
       // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
       window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')

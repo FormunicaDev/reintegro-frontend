@@ -317,149 +317,240 @@
                     color="primary"
                     dark
                   >
-                    Detalles de la Solicitud
+                    Información de la Solicitud
                   </v-toolbar>
                   <v-card-text>
-                    <v-container>
-                      <v-row v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false">
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="2"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.centroCosto"
-                            v-mask="'##-##-##'"
-                            label="Centro de Costo"
-                            outlined
-                            dense
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="2"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.cuentaContable"
-                            v-mask="'#-##-##-###-###'"
-                            label="Cuenta Contable"
-                            outlined
-                            dense
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="1"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.Linea"
-                            label="Linea"
-                            outlined
-                            dense
-                            disabled
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="3"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.concepto"
-                            label="Concepto"
-                            outlined
-                            dense
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="3"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.establecimiento"
-                            label="Establecimiento"
-                            outlined
-                            dense
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="2"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.numFactura"
-                            label="# Factura"
-                            outlined
-                            dense
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="2"
-                        >
-                          <v-text-field
-                            v-model="itemsDetail.monto"
-                            outlined
-                            dense
-                            label="Monto"
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col
-                          cols="12"
-                          md="6"
-                          sm="2"
-                        >
-                          <v-btn
-                            v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
-                            color="info"
-                            outlined
-                            @click="editLineasDetalles()"
-                          >
-                            Actualizar Linea
-                          </v-btn>
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col
-                          cols="12"
-                        >
-                          <v-data-table
-                            :headers="headersDetails"
-                            :items="dataDetalleReintegro"
-                            class="elevation-7 rounded-xl"
-                            :loading="loadingData"
-                            loading-text="Cargando... Por Favor espere"
-                          >
-                            <template v-slot:[`item.actionsDetails`]="{ item }">
-                              <v-icon
-                                v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
-                                @click="selectDetails(item)"
+                    <br>
+                    <v-card
+                      v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
+                      elevation="7"
+                    >
+                      <v-card-title>Cabecera de la Solicitud</v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="data.CENTRO_COSTO"
+                                label="Centro de Costo"
+                                dense
+                                outlined
                               >
-                                {{ icons.mdiPencil }}
-                              </v-icon>
-                              <v-icon
-                                v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
-                                @click="deleteItem(item)"
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="data.Beneficiario"
+                                label="Beneficiario"
+                                dense
+                                outlined
                               >
-                                {{ icons.mdiDelete }}
-                              </v-icon>
-                            </template>
-                          </v-data-table>
-                        </v-col>
-                      </v-row>
-                    </v-container>
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="data.Concepto"
+                                label="Concepto"
+                                dense
+                                outlined
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-autocomplete
+                                v-model="data.TipoPago"
+                                label="Tipo de Pago"
+                                :items="tipoPago"
+                                item-text="Descripcion"
+                                item-value="TipoPago"
+                                dense
+                                outlined
+                                small-chips
+                              >
+                              </v-autocomplete>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="data.Monto"
+                                label="Monto"
+                                dense
+                                outlined
+                              >
+                              </v-text-field>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                    </v-card>
+                    <br>
+                    <v-card
+                      elevation="7"
+                    >
+                      <v-card-title v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false">Detalle de la Solicitud</v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false">
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.centroCosto"
+                                v-mask="'##-##-##'"
+                                label="Centro de Costo"
+                                outlined
+                                dense
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.cuentaContable"
+                                v-mask="'#-##-##-###-###'"
+                                label="Cuenta Contable"
+                                outlined
+                                dense
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="1"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.Linea"
+                                label="Linea"
+                                outlined
+                                dense
+                                disabled
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="3"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.concepto"
+                                label="Concepto"
+                                outlined
+                                dense
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="3"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.establecimiento"
+                                label="Establecimiento"
+                                outlined
+                                dense
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.numFactura"
+                                label="# Factura"
+                                outlined
+                                dense
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              sm="6"
+                              md="2"
+                            >
+                              <v-text-field
+                                v-model="itemsDetail.monto"
+                                outlined
+                                dense
+                                label="Monto"
+                              >
+                              </v-text-field>
+                            </v-col>
+                            <v-col
+                              cols="12"
+                              md="6"
+                              sm="2"
+                            >
+                              <v-btn
+                                v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
+                                color="info"
+                                outlined
+                                @click="editLineasDetalles()"
+                              >
+                                Actualizar Linea
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col
+                              cols="12"
+                            >
+                              <v-data-table
+                                :headers="headersDetails"
+                                :items="dataDetalleReintegro"
+                                class="elevation-7 rounded-xl"
+                                :loading="loadingData"
+                                loading-text="Cargando... Por Favor espere"
+                              >
+                                <template v-slot:[`item.actionsDetails`]="{ item }">
+                                  <v-icon
+                                    v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
+                                    @click="selectDetails(item)"
+                                  >
+                                    {{ icons.mdiPencil }}
+                                  </v-icon>
+                                  <v-icon
+                                    v-if="statusCodeSol === 'Pendiente' || statusCodeSol === 'Aprobado' || statusCodeSol === 'Atendido'? true:false"
+                                    @click="deleteItem(item)"
+                                  >
+                                    {{ icons.mdiDelete }}
+                                  </v-icon>
+                                </template>
+                              </v-data-table>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                    </v-card>
+                    <br>
                   </v-card-text>
                   <v-card-actions class="justify-end">
                     <v-btn
@@ -475,6 +566,12 @@
                       @click="putDetalleSolicitud()"
                     >
                       Guardar Cambios
+                    </v-btn>
+                    <v-btn
+                      color="secondary"
+                      @click="print()"
+                    >
+                      Imprimir
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -647,6 +744,7 @@ import state from '@/services/status'
 import paisService from '@/services/country'
 import validateLogin from '@/services/validateLogin'
 import actions from '@/services/action'
+import tipopagoService from '@/services/tipoPago'
 
 export default {
 
@@ -749,6 +847,7 @@ export default {
     editedIndex: -1,
     items: [],
     actions: [],
+    tipoPago: [],
     idSolicitud: '',
     conceptoID: 0,
     perPage: 10,
@@ -786,7 +885,19 @@ export default {
       aprobacion: false,
     },
     data: {
+      CENTRO_COSTO: '',
+      Beneficiario: '',
+      Concepto: '',
+      TipoPago: '',
+      Monto: 0,
       items: [],
+    },
+    cabecera: {
+      CENTRO_COSTO: '',
+      Beneficiario: '',
+      Concepto: '',
+      TipoPago: 0,
+      Monto: 0,
     },
   }),
 
@@ -1035,14 +1146,15 @@ export default {
         this.overlay = false
       }
     },
-    getSolicitudDetalle(item) {
+    async getSolicitudDetalle(item) {
+      await this.getTipoPago()
       this.limpiarDetalles()
       this.dialog2 = true
       this.loadingData = true
       this.dataDetalleReintegro = []
       this.statusCodeSol = item.nameStatus
       this.idSolicitud = item.IdSolicitud
-      axios.get(`/api/reintegrodetalle/${item.IdSolicitud}`).then(response => {
+      await axios.get(`/api/reintegrodetalle/${item.IdSolicitud}`).then(async response => {
         if (response.data === null) {
           this.snackbar = true
           this.text = 'No Existen Registros en la base de datos'
@@ -1052,6 +1164,7 @@ export default {
           this.loadingData = false
           this.dataDetalleReintegro = response.data
         }
+        await this.getSolicitudById()
       }).catch(error => {
         this.snackbar = true
         this.text = error.data.mensaje
@@ -1249,6 +1362,34 @@ export default {
       this.Pais.push(this.dataCountry[0].IdPais)
       this.loadCountry = false
     },
+    print() {
+      const user = sessionStorage.getItem('userRei')
+      const pais = sessionStorage.getItem('countryUser')
+      const IdSolicitud = this.idSolicitud
+
+      // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${pais}&user=${user}`, '_blank')
+
+      window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${pais}&user=${user}`, '_blank')
+    },
+    async getSolicitudById() {
+      const user = sessionStorage.getItem('userRei')
+      const data = await solicitudService.reintegroById(this.idSolicitud, this.role, this.Pais, user)
+      // eslint-disable-next-line prefer-destructuring
+      this.data = data.data[0]
+      console.log(data.data[0])
+    },
+    async getTipoPago() {
+      const perPage = 100
+      const data = await tipopagoService.getTipopago(perPage)
+      this.tipoPago = data.data
+    },
   },
 }
 </script>
+
+<style>
+.bordered {
+  box-shadow: 2px 2px 2px rgb(48, 47, 47), -2px -2px 2px rgb(48, 47, 47);
+}
+
+</style>
