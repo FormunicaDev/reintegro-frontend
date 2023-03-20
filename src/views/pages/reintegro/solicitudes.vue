@@ -395,6 +395,7 @@
                                 label="Monto"
                                 dense
                                 outlined
+                                disabled
                               >
                               </v-text-field>
                             </v-col>
@@ -1294,7 +1295,7 @@ export default {
       }
     },
     editLineasDetalles() {
-      if (this.role === '1501' || this.role === '1500') {
+      if (this.role === '1500' || this.role === 1500) {
         if (this.itemsDetail.Linea !== '') {
           const index = this.dataDetalleReintegro.findIndex((obj => obj.Linea === this.itemsDetail.Linea))
           this.dataDetalleReintegro[index].CENTRO_COSTO = this.itemsDetail.centroCosto
@@ -1303,6 +1304,7 @@ export default {
           this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
           this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
           this.dataDetalleReintegro[index].Monto = this.itemsDetail.monto
+          this.recalcularMontos()
         } else {
         // eslint-disable-next-line no-plusplus
           for (let index = 0; index < this.dataDetalleReintegro.length; index++) {
@@ -1312,6 +1314,7 @@ export default {
             this.dataDetalleReintegro[index].NombreEstablecimiento_Persona = this.itemsDetail.establecimiento
             this.dataDetalleReintegro[index].NumeroFactura = this.itemsDetail.numFactura
             this.dataDetalleReintegro[index].Monto = this.itemsDetail.monto
+            this.recalcularMontos()
           }
         }
       } else {
@@ -1363,13 +1366,15 @@ export default {
       this.loadCountry = false
     },
     print() {
-      const user = sessionStorage.getItem('userRei')
-      const pais = sessionStorage.getItem('countryUser')
+      // const user = sessionStorage.getItem('userRei')
+      // const pais = sessionStorage.getItem('countryUser')
       const IdSolicitud = this.idSolicitud
+
+      window.open(`http://10.10.0.16:82/api/printreintegro/${IdSolicitud}`, '_blank')
 
       // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${pais}&user=${user}`, '_blank')
 
-      window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${pais}&user=${user}`, '_blank')
+      // window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${pais}&user=${user}`, '_blank')
     },
     async getSolicitudById() {
       const user = sessionStorage.getItem('userRei')
@@ -1383,6 +1388,11 @@ export default {
       const data = await tipopagoService.getTipopago(perPage)
       this.tipoPago = data.data
     },
+    recalcularMontos() {
+      const montoDetalle = this.dataDetalleReintegro.reduce((acc, obj) => acc + parseFloat(obj.Monto), 0)
+      this.data.Monto = montoDetalle
+    },
+
   },
 }
 </script>

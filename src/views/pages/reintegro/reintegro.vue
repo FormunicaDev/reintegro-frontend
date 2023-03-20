@@ -462,7 +462,6 @@
                                     dense
                                     label="Monto"
                                     type="number"
-                                    :disabled="boolMonto"
                                   >
                                   </v-text-field>
                                 </v-col>
@@ -1318,7 +1317,7 @@ export default {
         this.destructObject()
 
         // console.log(this.reintegroItem)
-        const user = sessionStorage.getItem('userRei')
+        // const user = sessionStorage.getItem('userRei')
 
         this.dialogLoad = true
         axios.post('/api/reintegro', this.reintegroItem).then(response => {
@@ -1326,7 +1325,9 @@ export default {
           this.text = `${response.data.mensaje}- Numero de Solicitud: ${response.data.Solicitud}`
           this.getReintegro()
           this.limpiarCampos()
-          window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${response.data.Solicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+          window.open(`http://10.10.0.16:82/api/printreintegro/${response.data.Solicitud}`, '_blank')
+
+          // window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${response.data.Solicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
           this.dialogLoad = false
           this.dialog = false
         }).catch(error => {
@@ -1613,18 +1614,24 @@ export default {
     },
     printReintegro(item) {
       const { IdSolicitud } = item
-      const user = sessionStorage.getItem('userRei')
+
+      // const user = sessionStorage.getItem('userRei')
+
+      window.open(`http://10.10.0.16:82/api/printreintegro/${IdSolicitud}`, '_blank')
 
       // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
 
-      window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+      // window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
     },
     print() {
-      const user = sessionStorage.getItem('userRei')
+      // const user = sessionStorage.getItem('userRei')
       const IdSolicitud = this.idSolicitud
 
+      window.open(`http://10.10.0.16:82/api/printreintegro/${IdSolicitud}`, '_blank')
+
       // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
-      window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+
+      // window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
     },
     getCountry() {
       const user = sessionStorage.getItem('userRei')

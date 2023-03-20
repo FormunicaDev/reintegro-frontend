@@ -1,6 +1,6 @@
 {
-  "appId": "com.formunica.formuspy",
-  "appName": "formuspy",
-  "webDir": "dist",
+  "appId": "com.formunica.impresor",
+  "appName": "impresor",
+  "webDir": "impresor",
   "bundledWebRuntime": false
 }
