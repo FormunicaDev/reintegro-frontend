@@ -227,6 +227,7 @@
           <tr><strong>Banco: </strong> {{ item.Banco }}</tr>
           <tr><strong>Cuenta de Banco: </strong> {{ item.CUENTA_BANCO }}</tr>
           <tr><strong>Concepto:</strong> {{ item.Concepto }}</tr>
+          <tr><strong>Comentarios:</strong> {{ item.Comentarios }}</tr>
         </td>
       </template>
       <template v-slot:top>

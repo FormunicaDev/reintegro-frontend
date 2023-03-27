@@ -88,7 +88,7 @@
             </template>
             <v-card class="rounded-xl">
               <v-card-title>
-                <span class="text-h5">{{ formTitle }}</span>
+                <span class="text-h5">{{ formTitle }} - {{ numeroSolicitud }}</span>
               </v-card-title>
 
               <v-card-text>
@@ -106,7 +106,7 @@
                         color="primary lighten-2"
                         class="subheading white--text"
                         size="24"
-                        v-text="step"
+                        :v-text="step"
                       ></v-avatar>
                     </v-card-title>
 
@@ -132,7 +132,7 @@
                                     chips
                                     clearable
                                     small-chips
-                                    label="Centro de Costo *"
+                                    label="Centro de Costo - Unidad Solicitante*"
                                     item-text="Descripcion"
                                     item-value="CentroCosto"
                                     :loading="loadCeCo"
@@ -1000,6 +1000,7 @@ export default {
       { text: 'Tipo de Pago', value: 'Descripcion' },
       { text: 'Beneficiario', value: 'Beneficiario' },
       { text: 'Concepto', value: 'Concepto' },
+      { text: 'Comentarios', value: 'Comentarios' },
       { text: 'Cuenta de Banco', value: 'CUENTA_BANCO' },
       { text: 'Cheque', value: 'NumCheque' },
       { text: 'Registro', value: 'FECHAREGISTRO' },
@@ -1108,6 +1109,7 @@ export default {
     ceco: 0,
     loadCeCo: false,
     montoSuma: 0,
+    numeroSolicitud: 0,
   }),
 
   computed: {
@@ -1377,6 +1379,9 @@ export default {
       this.dataCuentaContable = data.data
     },
     async nuevo() {
+      setTimeout(async () => {
+        await this.getNumeroSolicitud()
+      }, 20000)
       await this.getCentroCosto()
       await this.getTipoPago()
       await this.getConceptoPago()
@@ -1631,7 +1636,7 @@ export default {
 
       // window.open(`http://127.0.0.1:8000/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
 
-      // window.open(`http://10.10.0.35:8080/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
+      // window.open(`http://localhost:7262/apiReintegro/public/pdf?IdSolicitud=${IdSolicitud}&Pais=${this.reintegroItem.Pais}&user=${user}`, '_blank')
     },
     getCountry() {
       const user = sessionStorage.getItem('userRei')
@@ -1674,6 +1679,11 @@ export default {
       if (concepto === 'Cena') this.boolMonto = true
       if (concepto === 'Hospedaje') this.boolMonto = false
       if (concepto === 'Transporte') this.boolMonto = false
+    },
+    async getNumeroSolicitud() {
+      await axios.get('/api/numeroReintegro').then(res => {
+        this.numeroSolicitud = res.data
+      })
     },
   },
 }
