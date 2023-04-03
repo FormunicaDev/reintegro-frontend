@@ -1379,7 +1379,8 @@ export default {
       this.dataCuentaContable = data.data
     },
     async nuevo() {
-      setTimeout(async () => {
+      await this.getNumeroSolicitud()
+      setInterval(async () => {
         await this.getNumeroSolicitud()
       }, 20000)
       await this.getCentroCosto()
